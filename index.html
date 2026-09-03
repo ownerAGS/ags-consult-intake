@@ -9,6 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="AGS Booking">
   <link rel="manifest" href="manifest.webmanifest">
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
   <link rel="apple-touch-icon" href="https://alphagentlemensuits.com/cdn/shop/files/logo_f9536896-d3d9-467b-9a93-4dd193670fce.jpg">
   <title>Consultation intake</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -331,6 +332,7 @@
             <option value="">Select</option>
             <option>A single suit</option>
             <option>Multiple suits</option>
+            <option>Full wardrobe upgrade</option>
             <option>Ongoing seasonal relationship</option>
           </select></label>
         <label class="field"><span>What climate will this suit primarily be worn in? <i class="req">*</i></span>
@@ -338,6 +340,7 @@
             <option value="">Select</option>
             <option>Warm / Tropical</option>
             <option>Moderate</option>
+            <option>Cold</option>
             <option>Mixed travel</option>
           </select></label>
         <label class="field"><span>Have you previously purchased a custom suit? <i class="req">*</i></span>
@@ -406,16 +409,26 @@
   <div class="sticky">
     <div class="inner">
       <button class="submit" type="submit" form="intake" id="submitBtn">Continue to Booking</button>
+      <div id="cf-turnstile" style="min-height:0;height:0;overflow:hidden"></div>
+      <iframe name="ghl_hidden" title="" style="display:none"></iframe>
       <footer>Alpha Gentlemen Suits · Tampa</footer>
     </div>
   </div>
 
   <script>
     const IMG = "https://assets.cdn.filesafe.space/ZeElvACzUObQ1MOXj6kw/media/";
+    const LOCATION_ID = "ZeElvACzUObQ1MOXj6kw";
+    const GHL_LEAD_FORM = "XdiyW4lBhphT58spZ289";
+    const GHL_CONSULT_FORM = {
+      "In Person": "GbqOqmv0GWcaxFVfWXH2",
+      "Virtual": "p47RCE4b9VqsxG4dqDdE"
+    };
     const BOOKING = {
       "In Person": "https://app.usemotion.com/meet/kyle-ploucher-5mh8/wym2bsp",
       "Virtual": "https://app.usemotion.com/meet/kyle-ploucher-5mh8/styygp8"
     };
+    const SHEET_HOOK = "";
+    let turnstileToken = "";
     const SELECTORS = [
       {
         field: "bodyType",
@@ -584,13 +597,9 @@
       });
     }
 
-    async function emailIntake(form) {
+    async function emailIntake(form, photo) {
       const fd = new FormData(form);
-      const original = photoInput.files && photoInput.files[0];
-      if (original) {
-        const small = await shrinkPhoto(original);
-        fd.set("photo", small, small.name);
-      }
+      if (photo) fd.set("photo", photo, photo.name);
       fd.append("_subject", "AGS intake — " + fd.get("firstName") + " " + fd.get("lastName"));
       fd.append("_template", "table");
       fd.append("_captcha", "false");
@@ -601,8 +610,11 @@
       return res.ok;
     }
 
-    function summary(form) {
-      const d = Object.fromEntries(new FormData(form).entries());
+    function values(form) {
+      return Object.fromEntries(new FormData(form).entries());
+    }
+
+    function summary(d, photoName) {
       return [
         "AGS consultation intake",
         d.firstName + " " + d.lastName,
@@ -624,8 +636,140 @@
         "Height: " + d.height,
         "Weight: " + d.weight,
         "SMS consent: " + (d.smsConsent ? "yes" : "no"),
-        "Photo: " + ((photoInput.files && photoInput.files[0] && photoInput.files[0].name) || "attached")
+        "Photo: " + (photoName || "attached")
       ].join("\n");
+    }
+
+    function bookingUrl(consult, d) {
+      const q = new URLSearchParams({
+        email: d.email || "",
+        name: ((d.firstName || "") + " " + (d.lastName || "")).trim(),
+        firstName: d.firstName || "",
+        lastName: d.lastName || "",
+        phone: d.phone || ""
+      });
+      return BOOKING[consult] + "?" + q.toString();
+    }
+
+    function ghlBody(fields, fileField, file) {
+      const payload = Object.assign({
+        formId: fields.formId,
+        location_id: LOCATION_ID,
+        Timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        eventData: { source: "ags-phone-intake" }
+      }, fields);
+      if (turnstileToken) payload.turnstileNonInteractiveToken = turnstileToken;
+      const body = new FormData();
+      body.set("formData", JSON.stringify(payload));
+      body.append("locationId", LOCATION_ID);
+      body.append("formId", fields.formId);
+      if (turnstileToken) {
+        body.append("challengeToken", turnstileToken);
+        body.append("turnstileNonInteractiveToken", turnstileToken);
+      }
+      if (fileField && file) body.append(fileField, file);
+      return body;
+    }
+
+    async function ghlPost(formId, fields, fileField, file) {
+      fields.formId = formId;
+      const body = ghlBody(fields, fileField, file);
+      const urls = [
+        "https://backend.leadconnectorhq.com/forms/submit?formId=" + encodeURIComponent(formId) + "&locationId=" + encodeURIComponent(LOCATION_ID),
+        "https://api.msgsndr.com/forms/submit"
+      ];
+      for (let i = 0; i < urls.length; i++) {
+        try {
+          const res = await fetch(urls[i], { method: "POST", body: body, mode: "cors" });
+          if (res.ok) return true;
+        } catch (_) { /* try next */ }
+      }
+      try {
+        await fetch(urls[0], { method: "POST", body: body, mode: "no-cors" });
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    async function fileToBase64(file) {
+      if (!file) return "";
+      const buf = await file.arrayBuffer();
+      const bytes = new Uint8Array(buf);
+      let bin = "";
+      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+      return btoa(bin);
+    }
+
+    async function postSheet(d, photo, bookLink) {
+      if (!SHEET_HOOK) return false;
+      const payload = {
+        submittedAt: new Date().toISOString(),
+        firstName: d.firstName,
+        lastName: d.lastName,
+        phone: d.phone,
+        email: d.email,
+        city: d.city,
+        state: d.state,
+        consultType: d.consultType,
+        occasion: d.occasion,
+        buildType: d.buildType,
+        climate: d.climate,
+        priorSuit: d.priorSuit,
+        timeline: d.timeline,
+        budget: d.budget,
+        bodyType: d.bodyType,
+        faceShape: d.faceShape,
+        chestBack: d.chestBack,
+        stomach: d.stomach,
+        shoulder: d.shoulder,
+        height: d.height,
+        weight: d.weight,
+        smsConsent: d.smsConsent ? "yes" : "no",
+        bookingLink: bookLink,
+        photoMime: photo && photo.type,
+        photoBase64: await fileToBase64(photo)
+      };
+      const res = await fetch(SHEET_HOOK, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload)
+      });
+      return res.ok;
+    }
+
+    async function sendToCrm(d, photo) {
+      const lead = {
+        first_name: d.firstName,
+        last_name: d.lastName,
+        phone: d.phone,
+        email: d.email,
+        city: d.city,
+        state: d.state,
+        w6XeTJFmRRygOHAMw9Sr: d.consultType,
+        "1SHwIOLiytQnjBtYF157": d.occasion,
+        rIhzhn7VCXWS8SJLGYZj: d.buildType,
+        "6BAXFcBwCHmxTZ84culn": d.climate,
+        SWH0tWZ7nX59aTzuXi0I: d.priorSuit,
+        PdARjGB8Z2gFOGQxA3Bl: d.timeline,
+        "2I89TWT99DsTqtZ1k4nT": d.budget
+      };
+      if (d.smsConsent) lead.terms_and_conditions = "terms_and_conditions";
+      const consult = {
+        first_name: d.firstName,
+        last_name: d.lastName,
+        phone: d.phone,
+        email: d.email,
+        "21a5DROBB7bwBa6XPzvU": d.bodyType,
+        HCcIUZQo8QVJcemkOGd4: d.faceShape,
+        HWRK0IZ49frDiXz1Phhh: d.chestBack,
+        fNWr9FgJJQ0pSdelcqT2: d.stomach,
+        "0CzMGdS0ZC88fRMVR8OT": d.shoulder,
+        MIi4NuU7VgP8UUFnk80N: d.height,
+        APs2oq9F9pndy6yrraPT: d.weight
+      };
+      await ghlPost(GHL_LEAD_FORM, lead);
+      await ghlPost(GHL_CONSULT_FORM[d.consultType] || GHL_CONSULT_FORM["In Person"], consult, "Lx8SUPtcE89cBrUP5MZw", photo);
     }
 
     document.getElementById("intake").addEventListener("submit", async (e) => {
@@ -644,21 +788,38 @@
         if (grid) grid.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
-      const consult = consultHidden.value;
-      const url = BOOKING[consult];
-      const text = summary(form);
+      const d = values(form);
+      const consult = d.consultType;
+      const url = bookingUrl(consult, d);
+      const original = photoInput.files && photoInput.files[0];
       const btn = document.getElementById("submitBtn");
       btn.disabled = true;
       btn.textContent = "Sending…";
+      let photo = original;
+      try {
+        if (original) photo = await shrinkPhoto(original);
+      } catch (_) { photo = original; }
+      const text = summary(d, photo && photo.name);
       try {
         localStorage.setItem("ags-last-intake", text);
         await navigator.clipboard.writeText(text);
       } catch (_) { /* phone may block clipboard; booking still proceeds */ }
-      try {
-        await emailIntake(form);
-      } catch (_) { /* booking still proceeds */ }
+      try { await sendToCrm(d, photo); } catch (_) { /* booking still proceeds */ }
+      try { await emailIntake(form, photo); } catch (_) { /* booking still proceeds */ }
+      try { await postSheet(d, photo, url); } catch (_) { /* booking still proceeds */ }
       btn.textContent = "Opening your calendar…";
       window.location.href = url;
+    });
+
+    window.addEventListener("load", function () {
+      if (!window.turnstile) return;
+      try {
+        window.turnstile.render("#cf-turnstile", {
+          sitekey: "0x4AAAAAACCpVlau-4k7cJ33",
+          size: "invisible",
+          callback: function (token) { turnstileToken = token; }
+        });
+      } catch (_) { /* continue */ }
     });
   </script>
 </body>
