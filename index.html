@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#16181c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="AGS Booking">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="https://alphagentlemensuits.com/cdn/shop/files/logo_f9536896-d3d9-467b-9a93-4dd193670fce.jpg">
+  <title>Consultation intake</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #16181c;
+      --body: #2c2f36;
+      --muted: #6b6f78;
+      --brass: #8a7134;
+      --ivory: #f4f1ea;
+      --paper: #faf9f5;
+      --line: #cfc8b8;
+      --white: #ffffff;
+      --flag: #8c3b2f;
+      --ok: #2f6b4f;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Lato, "Helvetica Neue", sans-serif;
+      color: var(--body);
+      background: var(--paper);
+      line-height: 1.5;
+    }
+    header {
+      background: var(--ink);
+      color: var(--ivory);
+      padding: 28px 20px 22px;
+    }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 0 18px; }
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: #d4c4a0;
+      margin: 0 0 8px;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-family: "Playfair Display", Georgia, serif;
+      font-weight: 600;
+      font-size: clamp(26px, 6vw, 34px);
+      margin: 0 0 10px;
+      color: #fff;
+      line-height: 1.15;
+    }
+    header p { margin: 0; color: #cfc8b8; font-size: 15px; }
+    main { padding: 22px 0 148px; }
+    .section {
+      background: var(--white);
+      border: 1px solid var(--line);
+      padding: 20px 18px 18px;
+      margin: 0 0 14px;
+    }
+    .section h2 {
+      font-family: "Playfair Display", Georgia, serif;
+      font-weight: 600;
+      font-size: 20px;
+      color: var(--ink);
+      margin: 0 0 4px;
+    }
+    .section .lede {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    label.field {
+      display: block;
+      margin: 0 0 12px;
+    }
+    label.field span {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .req { color: var(--flag); }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    select,
+    textarea {
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--white);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 16px;
+      padding: 12px 12px;
+      border-radius: 0;
+    }
+    textarea { min-height: 88px; resize: vertical; }
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid var(--brass);
+      outline-offset: 1px;
+      border-color: var(--brass);
+    }
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .choice-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .choice {
+      border: 2px solid var(--line);
+      background: var(--white);
+      padding: 14px 10px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .choice.selected {
+      border-color: var(--ink);
+      background: var(--ivory);
+    }
+    .icon-grid {
+      display: grid;
+      gap: 10px;
+    }
+    .cols-5, .cols-7 { grid-template-columns: repeat(2, 1fr); }
+    .cols-4 { grid-template-columns: repeat(2, 1fr); }
+    .cols-3 { grid-template-columns: repeat(3, 1fr); }
+    @media (min-width: 520px) {
+      .cols-5 { grid-template-columns: repeat(5, 1fr); }
+      .cols-7 { grid-template-columns: repeat(4, 1fr); }
+      .cols-4 { grid-template-columns: repeat(4, 1fr); }
+    }
+    .icon-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 6px 8px;
+      border: 2px solid #e5e5e5;
+      background: #fff;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .icon-card img {
+      width: 100%;
+      max-height: 92px;
+      object-fit: contain;
+      pointer-events: none;
+    }
+    .icon-card .name {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #555;
+      margin-top: 8px;
+      text-align: center;
+      line-height: 1.25;
+    }
+    .icon-card.selected {
+      border-color: var(--ink);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    .icon-card.selected .name { color: var(--ink); }
+    .check {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 18px;
+      height: 18px;
+      background: var(--ink);
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon-card.selected .check { display: flex; }
+    .check svg { width: 11px; height: 11px; stroke: #fff; stroke-width: 3; fill: none; }
+    .help {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0 0 14px;
+    }
+    .help a { color: var(--brass); }
+    .virtual-only { display: none; }
+    .virtual-only.show { display: block; }
+    .ref-photo {
+      width: 100%;
+      max-height: 280px;
+      object-fit: cover;
+      object-position: top;
+      border: 1px solid var(--line);
+      margin: 8px 0 14px;
+      background: #eee;
+    }
+    .upload {
+      border: 1.5px dashed var(--line);
+      padding: 28px 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+      background: var(--paper);
+    }
+    .upload.has-file {
+      border-style: solid;
+      border-color: var(--ok);
+      color: var(--ok);
+      font-weight: 700;
+    }
+    .upload input { display: none; }
+    .consent {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 12px;
+      color: var(--body);
+      line-height: 1.45;
+    }
+    .consent input { margin-top: 3px; flex-shrink: 0; }
+    .sticky {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--white);
+      border-top: 1px solid var(--line);
+      padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
+    }
+    .sticky .inner { max-width: 560px; margin: 0 auto; }
+    button.submit {
+      width: 100%;
+      border: 0;
+      background: var(--ink);
+      color: #fff;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      padding: 16px;
+      cursor: pointer;
+    }
+    button.submit:disabled { opacity: 0.55; cursor: wait; }
+    .toast {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--flag);
+      color: #fff;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      z-index: 50;
+      max-width: 90%;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 8px 0 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <p class="eyebrow">Alpha Gentlemen Suits</p>
+      <h1>Let’s get you on the calendar</h1>
+      <p>A few details so Kyle can pull the right options. When you submit, you’ll pick a time for your visit.</p>
+    </div>
+  </header>
+
+  <main>
+    <form id="intake" class="wrap" novalidate>
+      <section class="section">
+        <h2>About you</h2>
+        <p class="lede">So we can reach you and know where you’re coming from.</p>
+        <div class="row-2">
+          <label class="field"><span>First name <i class="req">*</i></span>
+            <input type="text" name="firstName" autocomplete="given-name" required></label>
+          <label class="field"><span>Last name <i class="req">*</i></span>
+            <input type="text" name="lastName" autocomplete="family-name" required></label>
+        </div>
+        <label class="field"><span>Phone <i class="req">*</i></span>
+          <input type="tel" name="phone" autocomplete="tel" inputmode="tel" required></label>
+        <label class="field"><span>Email <i class="req">*</i></span>
+          <input type="email" name="email" autocomplete="email" required></label>
+        <div class="row-2">
+          <label class="field"><span>City <i class="req">*</i></span>
+            <input type="text" name="city" autocomplete="address-level2" required></label>
+          <label class="field"><span>State <i class="req">*</i></span>
+            <input type="text" name="state" autocomplete="address-level1" required></label>
+        </div>
+        <p class="help" style="margin-top:4px;">If you’re in the Tampa area, would you like to come in person or meet on video?</p>
+        <div class="choice-grid" data-field="consultType">
+          <div class="choice selected" data-value="In Person">In person</div>
+          <div class="choice" data-value="Virtual">Virtual</div>
+        </div>
+        <input type="hidden" name="consultType" value="In Person">
+      </section>
+
+      <section class="section">
+        <h2>What you’re building</h2>
+        <p class="lede">Occasion, timing, and range — same questions as the first form.</p>
+        <label class="field"><span>Tell us about the occasion, event date (if you have one), and what you’re looking to build. <i class="req">*</i></span>
+          <textarea name="occasion" required></textarea></label>
+        <label class="field"><span>Are you looking to build: <i class="req">*</i></span>
+          <select name="buildType" required>
+            <option value="">Select</option>
+            <option>A single suit</option>
+            <option>Multiple suits</option>
+            <option>Ongoing seasonal relationship</option>
+          </select></label>
+        <label class="field"><span>What climate will this suit primarily be worn in? <i class="req">*</i></span>
+          <select name="climate" required>
+            <option value="">Select</option>
+            <option>Warm / Tropical</option>
+            <option>Moderate</option>
+            <option>Mixed travel</option>
+          </select></label>
+        <label class="field"><span>Have you previously purchased a custom suit? <i class="req">*</i></span>
+          <select name="priorSuit" required>
+            <option value="">Select</option>
+            <option>No – First time</option>
+            <option>Yes – Once</option>
+            <option>Yes – Multiple</option>
+          </select></label>
+        <label class="field"><span>When do you need your suit(s) completed by? <i class="req">*</i></span>
+          <select name="timeline" required>
+            <option value="">Select</option>
+            <option>Under 2 Months (Expedited)</option>
+            <option>2-3 Months</option>
+            <option>4-6 Months</option>
+            <option>8+ Months</option>
+          </select></label>
+        <label class="field"><span>What is your Suit Investment Range? <i class="req">*</i></span>
+          <select name="budget" required>
+            <option value="">Select</option>
+            <option>$900 - $1,500</option>
+            <option>$1,500 - $3,000</option>
+            <option>$3,000 - $5,500</option>
+            <option>$5,500 - $10,000</option>
+            <option>$10,000 - $30,000</option>
+          </select></label>
+      </section>
+
+      <section class="section">
+        <h2>Your build</h2>
+        <p class="lede">Tap the shape that matches you. Kyle uses this to pull fabrics and cut options before you sit down.</p>
+        <div id="selectors"></div>
+        <div class="virtual-only" id="measureNote">
+          <p class="help">For a virtual visit, measurements can be taken by a local tailor (often free or a small fee) or at home with a soft tape. You can print the <a href="https://assets.cdn.filesafe.space/ZeElvACzUObQ1MOXj6kw/media/69cd74a92a8b885c04e983d0.pdf" target="_blank" rel="noopener">measurement PDF</a> if someone else is measuring you. Height and weight below are enough to get you booked — full measurements can be finished before the call.</p>
+        </div>
+        <div class="row-2">
+          <label class="field"><span>Height <i class="req">*</i></span>
+            <input type="text" name="height" placeholder="e.g. 5'11&quot;" required></label>
+          <label class="field"><span>Weight <i class="req">*</i></span>
+            <input type="text" name="weight" placeholder="e.g. 185 lbs" required></label>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Photo</h2>
+        <p class="lede">Full body, standing straight, in fitted clothes. This is the same reference Kyle already uses.</p>
+        <p class="help">Example reference photo:</p>
+        <img class="ref-photo" alt="Example reference photo" src="https://assets.cdn.filesafe.space/ZeElvACzUObQ1MOXj6kw/media/69e3b0442c135a8c831a8e51.png">
+        <label class="upload" id="uploadBox">
+          <input type="file" name="photo" accept="image/*" required>
+          <span id="uploadLabel">Tap to take or upload a photo *</span>
+        </label>
+      </section>
+
+      <section class="section">
+        <h2>Text updates</h2>
+        <p class="lede" style="margin-bottom:12px;">Alpha Gentlemen Suits may contact you through the following channels:</p>
+        <label class="consent">
+          <input type="checkbox" name="smsConsent" required>
+          <span>By checking this box, I consent to receive text messages from Alpha Gentlemen Suits (Ploucher Enterprise LLC) about consultation scheduling, appointment reminders, order status updates, production and fulfillment notifications, and deposit requests at the phone number provided. Message frequency varies. Message &amp; data rates may apply. Text HELP for assistance, reply STOP to opt out.</span>
+        </label>
+      </section>
+    </form>
+  </main>
+
+  <div class="sticky">
+    <div class="inner">
+      <button class="submit" type="submit" form="intake" id="submitBtn">Continue to Booking</button>
+      <footer>Alpha Gentlemen Suits · Tampa</footer>
+    </div>
+  </div>
+
+  <script>
+    const IMG = "https://assets.cdn.filesafe.space/ZeElvACzUObQ1MOXj6kw/media/";
+    const BOOKING = {
+      "In Person": "https://app.usemotion.com/meet/kyle-ploucher-5mh8/wym2bsp",
+      "Virtual": "https://app.usemotion.com/meet/kyle-ploucher-5mh8/styygp8"
+    };
+    const SELECTORS = [
+      {
+        field: "bodyType",
+        label: "What's your body type?",
+        hint: "Select the shape that best matches your build.",
+        cols: 5,
+        options: [
+          ["Trapezoid", "69b8603f9379cf424ac0ae8e.png"],
+          ["Rectangle", "69b8603f87f0f29b15417892.png"],
+          ["Oval", "69b8603f5b89c73cbcd2d42c.png"],
+          ["Triangle", "69b8603f3e60726d0c4844fd.png"],
+          ["Inverted Triangle", "69b8603fad0276ed862d73e3.png"]
+        ]
+      },
+      {
+        field: "faceShape",
+        label: "What's your face shape?",
+        hint: "Select the shape closest to yours.",
+        cols: 7,
+        options: [
+          ["Oval", "69c99e5e3204cc4b7c712866.png"],
+          ["Round", "69c99e5e3204cc4c67712867.png"],
+          ["Square", "69c99e5ecd51593a104fa898.png"],
+          ["Heart", "69c99e5e97dabdc0493c1be3.png"],
+          ["Oblong", "69c99e5f8c28760f268ad513.png"],
+          ["Diamond", "69c99e5e97dabd164f3c1be2.png"],
+          ["Triangle", "69c99e508c2876a1028ad43b.png"]
+        ]
+      },
+      {
+        field: "chestBack",
+        label: "Chest and back posture",
+        hint: "Select the profile that matches your natural posture.",
+        cols: 3,
+        options: [
+          ["Forward Chest", "69b865b81cb8356979b94770.png"],
+          ["Normal Chest", "69b865b8ad0276bd702e1c47.png"],
+          ["Round Back", "69b865b81cb8352471b94771.png"]
+        ]
+      },
+      {
+        field: "stomach",
+        label: "Stomach profile",
+        hint: "Select the profile closest to yours from the side.",
+        cols: 4,
+        options: [
+          ["Flat", "69b865e27a4cd1b45f4e73f3.png"],
+          ["Forward Stomach", "69b865e287f0f2ec584221af.png"],
+          ["Stout", "69b865e2da156a96f368b1da.png"],
+          ["Large", "69b865e287f2fbf47cb0df1b.png"]
+        ]
+      },
+      {
+        field: "shoulder",
+        label: "Shoulder type",
+        hint: "Select the shoulder shape that matches yours.",
+        cols: 3,
+        options: [
+          ["Drop", "69cac8fbca19f87153a94196.png"],
+          ["Normal", "69cac8fbca19f893c5a94192.png"],
+          ["Square", "69cac8fb4a9b249e3f1c730a.png"]
+        ]
+      }
+    ];
+
+    const checkSvg = '<div class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>';
+    const selectorsEl = document.getElementById("selectors");
+
+    SELECTORS.forEach((group) => {
+      const wrap = document.createElement("div");
+      wrap.style.marginBottom = "22px";
+      wrap.innerHTML =
+        '<div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px;">' + group.label + ' <i class="req">*</i></div>' +
+        '<div class="help">' + group.hint + "</div>";
+      const grid = document.createElement("div");
+      grid.className = "icon-grid cols-" + group.cols;
+      grid.dataset.field = group.field;
+      group.options.forEach(([name, file]) => {
+        const card = document.createElement("div");
+        card.className = "icon-card";
+        card.dataset.value = name;
+        card.innerHTML = checkSvg + '<img alt="' + name + '" src="' + IMG + file + '"><div class="name">' + name + "</div>";
+        card.addEventListener("click", () => {
+          grid.querySelectorAll(".icon-card").forEach((c) => c.classList.remove("selected"));
+          card.classList.add("selected");
+          hidden.value = name;
+        });
+        grid.appendChild(card);
+      });
+      const hidden = document.createElement("input");
+      hidden.type = "hidden";
+      hidden.name = group.field;
+      hidden.required = true;
+      wrap.appendChild(grid);
+      wrap.appendChild(hidden);
+      selectorsEl.appendChild(wrap);
+    });
+
+    const consultHidden = document.querySelector('input[name="consultType"]');
+    const measureNote = document.getElementById("measureNote");
+    document.querySelectorAll('[data-field="consultType"] .choice').forEach((btn) => {
+      btn.addEventListener("click", () => {
+        btn.parentElement.querySelectorAll(".choice").forEach((c) => c.classList.remove("selected"));
+        btn.classList.add("selected");
+        consultHidden.value = btn.dataset.value;
+        measureNote.classList.toggle("show", btn.dataset.value === "Virtual");
+      });
+    });
+
+    const uploadBox = document.getElementById("uploadBox");
+    const uploadLabel = document.getElementById("uploadLabel");
+    const photoInput = uploadBox.querySelector('input[name="photo"]');
+    photoInput.addEventListener("change", () => {
+      const file = photoInput.files && photoInput.files[0];
+      if (file) {
+        uploadBox.classList.add("has-file");
+        uploadLabel.textContent = file.name;
+      } else {
+        uploadBox.classList.remove("has-file");
+        uploadLabel.textContent = "Tap to take or upload a photo *";
+      }
+    });
+
+    function toast(msg) {
+      const existing = document.querySelector(".toast");
+      if (existing) existing.remove();
+      const el = document.createElement("div");
+      el.className = "toast";
+      el.textContent = msg;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }
+
+    function missingVisual() {
+      return SELECTORS.filter((g) => !document.querySelector('input[name="' + g.field + '"]').value)
+        .map((g) => g.label.replace(/^What's your /i, "").replace(/\?$/, ""));
+    }
+
+    function shrinkPhoto(file) {
+      return new Promise((resolve) => {
+        if (!file || !file.type.startsWith("image/")) return resolve(file);
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          const max = 1600;
+          let w = img.width, h = img.height;
+          if (Math.max(w, h) > max) {
+            const scale = max / Math.max(w, h);
+            w = Math.round(w * scale);
+            h = Math.round(h * scale);
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          canvas.toBlob((blob) => {
+            URL.revokeObjectURL(url);
+            resolve(blob ? new File([blob], "client-photo.jpg", { type: "image/jpeg" }) : file);
+          }, "image/jpeg", 0.82);
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          resolve(file);
+        };
+        img.src = url;
+      });
+    }
+
+    async function emailIntake(form) {
+      const fd = new FormData(form);
+      const original = photoInput.files && photoInput.files[0];
+      if (original) {
+        const small = await shrinkPhoto(original);
+        fd.set("photo", small, small.name);
+      }
+      fd.append("_subject", "AGS intake — " + fd.get("firstName") + " " + fd.get("lastName"));
+      fd.append("_template", "table");
+      fd.append("_captcha", "false");
+      const res = await fetch("https://formsubmit.co/ajax/owner@alphagentlemensuits.com", {
+        method: "POST",
+        body: fd
+      });
+      return res.ok;
+    }
+
+    function summary(form) {
+      const d = Object.fromEntries(new FormData(form).entries());
+      return [
+        "AGS consultation intake",
+        d.firstName + " " + d.lastName,
+        d.phone,
+        d.email,
+        d.city + ", " + d.state,
+        "Consult: " + d.consultType,
+        "Occasion: " + d.occasion,
+        "Build: " + d.buildType,
+        "Climate: " + d.climate,
+        "Prior custom: " + d.priorSuit,
+        "Need by: " + d.timeline,
+        "Range: " + d.budget,
+        "Body: " + d.bodyType,
+        "Face: " + d.faceShape,
+        "Chest/back: " + d.chestBack,
+        "Stomach: " + d.stomach,
+        "Shoulder: " + d.shoulder,
+        "Height: " + d.height,
+        "Weight: " + d.weight,
+        "SMS consent: " + (d.smsConsent ? "yes" : "no"),
+        "Photo: " + ((photoInput.files && photoInput.files[0] && photoInput.files[0].name) || "attached")
+      ].join("\n");
+    }
+
+    document.getElementById("intake").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        toast("Please fill in the highlighted fields.");
+        return;
+      }
+      const visual = missingVisual();
+      if (visual.length) {
+        toast("Please select: " + visual.join(", "));
+        const firstEmpty = SELECTORS.find((g) => !document.querySelector('input[name="' + g.field + '"]').value);
+        const grid = document.querySelector('.icon-grid[data-field="' + firstEmpty.field + '"]');
+        if (grid) grid.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      const consult = consultHidden.value;
+      const url = BOOKING[consult];
+      const text = summary(form);
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = true;
+      btn.textContent = "Sending…";
+      try {
+        localStorage.setItem("ags-last-intake", text);
+        await navigator.clipboard.writeText(text);
+      } catch (_) { /* phone may block clipboard; booking still proceeds */ }
+      try {
+        await emailIntake(form);
+      } catch (_) { /* booking still proceeds */ }
+      btn.textContent = "Opening your calendar…";
+      window.location.href = url;
+    });
+  </script>
+</body>
+</html>

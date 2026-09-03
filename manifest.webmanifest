@@ -1,0 +1,8 @@
+{
+  "name": "Alpha Gentlemen Suits — Consultation",
+  "short_name": "AGS Booking",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#16181c",
+  "theme_color": "#16181c"
+}
