@@ -272,6 +272,46 @@
       pointer-events: none;
       background: #e6dcc8;
     }
+    .icon-grid.cols-5 .icon-card img {
+      height: 210px;
+      object-position: center top;
+    }
+    .face-preview {
+      width: 100%;
+      max-height: 240px;
+      object-fit: cover;
+      object-position: top;
+      border: 1px solid var(--line);
+      margin: 10px 0 8px;
+      background: var(--field);
+    }
+    .face-result {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 17px;
+      margin: 8px 0 10px;
+      color: var(--ink);
+    }
+    .face-result strong { color: var(--brass); }
+    .face-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0 4px;
+    }
+    .face-chip {
+      border: 1px solid var(--line);
+      background: var(--field);
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 12px;
+      cursor: pointer;
+      color: var(--ink);
+    }
+    .face-chip.selected {
+      border-color: var(--brass);
+      box-shadow: inset 0 0 0 1px var(--gold);
+    }
     .icon-card .name {
       font-family: Cinzel, serif;
       font-size: 9px;
@@ -607,29 +647,14 @@
       {
         field: "bodyType",
         label: "What's your body type?",
-        hint: "Pick the one that looks closest — not a perfect match.",
+        hint: "The overall outline — shoulders vs waist vs hips. Pick the closest.",
         cols: 5,
         options: [
-          ["Trapezoid", "body-trapezoid.jpg", "Shoulders a bit wider than the waist"],
-          ["Rectangle", "body-rectangle.jpg", "Shoulders and waist about the same"],
-          ["Oval", "body-oval.jpg", "Softer through the middle"],
-          ["Triangle", "body-triangle.jpg", "Hips a bit wider than the shoulders"],
-          ["Inverted Triangle", "body-inverted-triangle.jpg", "Broad shoulders, narrower waist"]
-        ]
-      },
-      {
-        field: "faceShape",
-        label: "What's your face shape?",
-        hint: "Look at the jaw and overall outline, not the haircut.",
-        cols: 7,
-        options: [
-          ["Oval", "face-oval.jpg", "A little longer than it is wide"],
-          ["Round", "face-round.jpg", "Fuller cheeks, softer jaw"],
-          ["Square", "face-square.jpg", "Strong jaw, similar width top and bottom"],
-          ["Heart", "face-heart.jpg", "Wider forehead, narrower chin"],
-          ["Oblong", "face-oblong.jpg", "Noticeably longer face"],
-          ["Diamond", "face-diamond.jpg", "Wider cheekbones, narrower chin"],
-          ["Triangle", "face-triangle.jpg", "Wider jaw than the forehead"]
+          ["Trapezoid", "body-trapezoid.jpg", "Athletic V: shoulders clearly wider than a trim waist"],
+          ["Rectangle", "body-rectangle.jpg", "Straight up and down — shoulders, waist, and hips similar"],
+          ["Oval", "body-oval.jpg", "Fuller through the middle, rounder torso"],
+          ["Triangle", "body-triangle.jpg", "Narrower shoulders, wider hips"],
+          ["Inverted Triangle", "body-inverted-triangle.jpg", "Very broad shoulders, much narrower waist"]
         ]
       },
       {
@@ -719,6 +744,170 @@
       });
     })();
 
+    const FACE_SHAPES = ["Oval", "Round", "Square", "Heart", "Oblong", "Diamond", "Triangle"];
+    let faceLandmarker = null;
+    let faceLandmarkerLoading = null;
+
+    function dist(a, b) {
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    }
+
+    function classifyFaceShape(pts) {
+      const length = dist(pts[10], pts[152]);
+      const cheek = dist(pts[234], pts[454]);
+      const jaw = dist(pts[172], pts[397]);
+      const forehead = dist(pts[54], pts[284]);
+      if (!cheek) return "Oval";
+      const lw = length / cheek;
+      const jw = jaw / cheek;
+      const fw = forehead / cheek;
+      if (lw >= 1.58) return "Oblong";
+      if (jw > fw * 1.14 && jw > 0.9) return "Triangle";
+      if (fw > jw * 1.14 && jw < 0.9) return "Heart";
+      if (fw < 0.86 && jw < 0.86 && lw >= 1.2) return "Diamond";
+      if (lw <= 1.16) return jw >= 0.9 && fw >= 0.88 ? "Square" : "Round";
+      if (lw <= 1.28 && jw >= 0.92 && fw >= 0.9) return "Square";
+      return "Oval";
+    }
+
+    async function getFaceLandmarker() {
+      if (faceLandmarker) return faceLandmarker;
+      if (faceLandmarkerLoading) return faceLandmarkerLoading;
+      faceLandmarkerLoading = (async function () {
+        const vision = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.17/+esm");
+        const fileset = await vision.FilesetResolver.forVisionTasks(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.17/wasm"
+        );
+        const opts = {
+          baseOptions: {
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
+          },
+          runningMode: "IMAGE",
+          numFaces: 1
+        };
+        try {
+          opts.baseOptions.delegate = "GPU";
+          faceLandmarker = await vision.FaceLandmarker.createFromOptions(fileset, opts);
+        } catch (_) {
+          opts.baseOptions.delegate = "CPU";
+          faceLandmarker = await vision.FaceLandmarker.createFromOptions(fileset, opts);
+        }
+        return faceLandmarker;
+      })();
+      try {
+        return await faceLandmarkerLoading;
+      } catch (err) {
+        faceLandmarkerLoading = null;
+        throw err;
+      }
+    }
+
+    async function readFaceFile(file) {
+      const resultEl = document.getElementById("faceResult");
+      const preview = document.getElementById("facePreview");
+      const hidden = document.querySelector('input[name="faceShape"]');
+      const chips = document.getElementById("faceOverride");
+      resultEl.hidden = false;
+      chips.hidden = false;
+      resultEl.textContent = "Reading your face…";
+      try {
+        const bitmap = await createImageBitmap(file);
+        const canvas = document.createElement("canvas");
+        const max = 1280;
+        let w = bitmap.width, h = bitmap.height;
+        if (Math.max(w, h) > max) {
+          const scale = max / Math.max(w, h);
+          w = Math.round(w * scale);
+          h = Math.round(h * scale);
+        }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext("2d").drawImage(bitmap, 0, 0, w, h);
+        preview.src = canvas.toDataURL("image/jpeg", 0.82);
+        preview.hidden = false;
+        const landmarker = await getFaceLandmarker();
+        const detected = landmarker.detect(canvas);
+        const pts = detected && detected.faceLandmarks && detected.faceLandmarks[0];
+        if (!pts) {
+          resultEl.textContent = "We couldn’t read a face. Try again straight-on and closer, or pick below.";
+          return;
+        }
+        const shape = classifyFaceShape(pts);
+        hidden.value = shape;
+        resultEl.innerHTML = "Closest match: <strong>" + shape + "</strong>. Kyle will confirm — change it below if that’s off.";
+        chips.hidden = false;
+        chips.querySelectorAll(".face-chip").forEach(function (chip) {
+          chip.classList.toggle("selected", chip.dataset.value === shape);
+        });
+        const unsure = document.getElementById("faceUnsure");
+        if (unsure) unsure.classList.remove("selected");
+      } catch (_) {
+        resultEl.textContent = "We couldn’t read that photo. Pick the closest shape below, or try another picture.";
+        chips.hidden = false;
+      }
+    }
+
+    function buildFaceBlock() {
+      const wrap = document.createElement("div");
+      wrap.style.marginBottom = "22px";
+      wrap.innerHTML =
+        '<div class="sel-label">What\'s your face shape? <i class="req">*</i></div>' +
+        '<div class="help">Take a straight-on photo of your face. We’ll read the shape from it — you can change it if it’s off.</div>' +
+        '<label class="upload" id="faceUploadBox"><input type="file" name="facePhoto" accept="image/*" capture="user"><span id="faceUploadLabel">Tap to take or upload a face photo</span></label>' +
+        '<img class="face-preview" id="facePreview" alt="Your face" hidden>' +
+        '<p class="face-result" id="faceResult" hidden></p>' +
+        '<div class="face-chips" id="faceOverride" hidden></div>' +
+        '<button type="button" class="unsure-btn" id="faceUnsure">I\'m not sure — Kyle will confirm</button>';
+      const hidden = document.createElement("input");
+      hidden.type = "hidden";
+      hidden.name = "faceShape";
+      hidden.required = true;
+      wrap.appendChild(hidden);
+      const chips = wrap.querySelector("#faceOverride");
+      FACE_SHAPES.forEach(function (name) {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "face-chip";
+        chip.dataset.value = name;
+        chip.textContent = name;
+        chip.addEventListener("click", function () {
+          chips.querySelectorAll(".face-chip").forEach(function (c) { c.classList.remove("selected"); });
+          wrap.querySelector("#faceUnsure").classList.remove("selected");
+          chip.classList.add("selected");
+          hidden.value = name;
+          const resultEl = wrap.querySelector("#faceResult");
+          resultEl.hidden = false;
+          resultEl.innerHTML = "Using <strong>" + name + "</strong>.";
+        });
+        chips.appendChild(chip);
+      });
+      wrap.querySelector("#faceUnsure").addEventListener("click", function () {
+        chips.querySelectorAll(".face-chip").forEach(function (c) { c.classList.remove("selected"); });
+        wrap.querySelector("#faceUnsure").classList.add("selected");
+        hidden.value = "I'm not sure";
+        const resultEl = wrap.querySelector("#faceResult");
+        resultEl.hidden = false;
+        resultEl.textContent = "We’ll confirm your face shape when you sit down.";
+      });
+      const input = wrap.querySelector('input[name="facePhoto"]');
+      const label = wrap.querySelector("#faceUploadLabel");
+      const box = wrap.querySelector("#faceUploadBox");
+      input.addEventListener("change", function () {
+        const file = input.files && input.files[0];
+        if (!file) {
+          box.classList.remove("has-file");
+          label.textContent = "Tap to take or upload a face photo";
+          return;
+        }
+        box.classList.add("has-file");
+        label.textContent = "Photo added — reading face…";
+        readFaceFile(file).then(function () {
+          label.textContent = "Tap to retake";
+        });
+      });
+      return wrap;
+    }
+
     const checkSvg = '<div class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>';
     const selectorsEl = document.getElementById("selectors");
 
@@ -761,6 +950,7 @@
       wrap.appendChild(unsure);
       wrap.appendChild(hidden);
       selectorsEl.appendChild(wrap);
+      if (group.field === "bodyType") selectorsEl.appendChild(buildFaceBlock());
     });
 
     const consultHidden = document.querySelector('input[name="consultType"]');
@@ -799,8 +989,11 @@
     }
 
     function missingVisual() {
-      return SELECTORS.filter((g) => !document.querySelector('input[name="' + g.field + '"]').value)
+      const miss = SELECTORS.filter((g) => !document.querySelector('input[name="' + g.field + '"]').value)
         .map((g) => g.label.replace(/^What's your /i, "").replace(/\?$/, ""));
+      const face = document.querySelector('input[name="faceShape"]');
+      if (face && !face.value) miss.push("face shape");
+      return miss;
     }
 
     function shrinkPhoto(file) {
@@ -1083,6 +1276,7 @@
         "A few details so Kyle can pull the right options — then you’ll pick a time.";
       window.scrollTo(0, 0);
       step = 2;
+      getFaceLandmarker().catch(function () {});
       sendLeadOnly(d).catch(function () {});
       emailLead(d).catch(function () {});
       postSheet(d).catch(function () {});
