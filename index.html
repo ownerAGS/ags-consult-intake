@@ -257,7 +257,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 10px 6px 8px;
+      padding: 6px 6px 10px;
       border: 1px solid var(--line);
       background: var(--field);
       cursor: pointer;
@@ -266,9 +266,11 @@
     }
     .icon-card img {
       width: 100%;
-      max-height: 92px;
-      object-fit: contain;
+      height: 148px;
+      object-fit: cover;
+      object-position: top center;
       pointer-events: none;
+      background: #e6dcc8;
     }
     .icon-card .name {
       font-family: Cinzel, serif;
@@ -276,26 +278,57 @@
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--ink);
       margin-top: 8px;
       text-align: center;
       line-height: 1.25;
+    }
+    .icon-card .blurb {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 13px;
+      font-style: italic;
+      font-weight: 500;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--muted);
+      margin-top: 2px;
+      text-align: center;
+      line-height: 1.3;
+      padding: 0 4px;
     }
     .icon-card.selected {
       border-color: var(--brass);
       box-shadow: inset 0 0 0 1px var(--gold);
     }
     .icon-card.selected .name { color: var(--ink); }
+    .unsure-btn {
+      width: 100%;
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--ink);
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 15px;
+      font-style: italic;
+      padding: 12px 10px;
+      cursor: pointer;
+    }
+    .unsure-btn.selected {
+      border-color: var(--brass);
+      background: var(--field);
+      box-shadow: inset 0 0 0 1px var(--gold);
+    }
     .check {
       position: absolute;
-      top: 6px;
-      right: 6px;
+      top: 10px;
+      right: 10px;
       width: 18px;
       height: 18px;
       background: var(--ink);
       display: none;
       align-items: center;
       justify-content: center;
+      z-index: 2;
     }
     .icon-card.selected .check { display: flex; }
     .check svg { width: 11px; height: 11px; stroke: #fff; stroke-width: 3; fill: none; }
@@ -519,7 +552,8 @@
 
       <section class="section">
         <h2>Your build</h2>
-        <p class="lede">Tap the shape that matches you</p>
+        <p class="lede">Closest match is enough</p>
+        <p class="help">These help Kyle pull the right cut before you sit down. If you’re not sure, tap that — it is not a test.</p>
         <div id="selectors"></div>
         <div class="virtual-only" id="measureNote">
           <p class="help">For a virtual visit, measurements can be taken by a local tailor (often free or a small fee) or at home with a soft tape. You can print the <a href="https://assets.cdn.filesafe.space/ZeElvACzUObQ1MOXj6kw/media/69cd74a92a8b885c04e983d0.pdf" target="_blank" rel="noopener">measurement PDF</a> if someone else is measuring you. Height and weight below are enough to get you booked — full measurements can be finished before the call.</p>
@@ -567,8 +601,72 @@
   </div>
 
   <script>
-    const IMG = "https://assets.cdn.filesafe.space/ZeElvACzUObQ1MOXj6kw/media/";
+    const VISUAL = "visuals/";
     const LOCATION_ID = "ZeElvACzUObQ1MOXj6kw";
+    const SELECTORS = [
+      {
+        field: "bodyType",
+        label: "What's your body type?",
+        hint: "Pick the one that looks closest — not a perfect match.",
+        cols: 5,
+        options: [
+          ["Trapezoid", "body-trapezoid.jpg", "Shoulders a bit wider than the waist"],
+          ["Rectangle", "body-rectangle.jpg", "Shoulders and waist about the same"],
+          ["Oval", "body-oval.jpg", "Softer through the middle"],
+          ["Triangle", "body-triangle.jpg", "Hips a bit wider than the shoulders"],
+          ["Inverted Triangle", "body-inverted-triangle.jpg", "Broad shoulders, narrower waist"]
+        ]
+      },
+      {
+        field: "faceShape",
+        label: "What's your face shape?",
+        hint: "Look at the jaw and overall outline, not the haircut.",
+        cols: 7,
+        options: [
+          ["Oval", "face-oval.jpg", "A little longer than it is wide"],
+          ["Round", "face-round.jpg", "Fuller cheeks, softer jaw"],
+          ["Square", "face-square.jpg", "Strong jaw, similar width top and bottom"],
+          ["Heart", "face-heart.jpg", "Wider forehead, narrower chin"],
+          ["Oblong", "face-oblong.jpg", "Noticeably longer face"],
+          ["Diamond", "face-diamond.jpg", "Wider cheekbones, narrower chin"],
+          ["Triangle", "face-triangle.jpg", "Wider jaw than the forehead"]
+        ]
+      },
+      {
+        field: "chestBack",
+        label: "Chest and back posture",
+        hint: "How you stand from the side, in a jacket.",
+        cols: 3,
+        options: [
+          ["Forward Chest", "chest-forward.jpg", "Chest sits a bit forward"],
+          ["Normal Chest", "chest-normal.jpg", "Straight, easy posture"],
+          ["Round Back", "chest-round-back.jpg", "Upper back a bit rounded"]
+        ]
+      },
+      {
+        field: "stomach",
+        label: "Stomach profile",
+        hint: "From the side, as you are today.",
+        cols: 4,
+        options: [
+          ["Flat", "stomach-flat.jpg", "Little to no belly"],
+          ["Forward Stomach", "stomach-forward.jpg", "A slight push at the front"],
+          ["Stout", "stomach-stout.jpg", "A rounder midsection"],
+          ["Large", "stomach-large.jpg", "A fuller stomach"]
+        ]
+      },
+      {
+        field: "shoulder",
+        label: "Shoulder type",
+        hint: "The line from neck out to the arm.",
+        cols: 3,
+        options: [
+          ["Drop", "shoulder-drop.jpg", "Shoulders slope down"],
+          ["Normal", "shoulder-normal.jpg", "A natural, even line"],
+          ["Square", "shoulder-square.jpg", "High, almost straight across"]
+        ]
+      }
+    ];
     const GHL_LEAD_FORM = "XdiyW4lBhphT58spZ289";
     const GHL_CONSULT_FORM = {
       "In Person": "GbqOqmv0GWcaxFVfWXH2",
@@ -602,70 +700,6 @@
       "NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT",
       "VT","VA","WA","WV","WI","WY"
     ];
-    const SELECTORS = [
-      {
-        field: "bodyType",
-        label: "What's your body type?",
-        hint: "Select the shape that best matches your build.",
-        cols: 5,
-        options: [
-          ["Trapezoid", "69b8603f9379cf424ac0ae8e.png"],
-          ["Rectangle", "69b8603f87f0f29b15417892.png"],
-          ["Oval", "69b8603f5b89c73cbcd2d42c.png"],
-          ["Triangle", "69b8603f3e60726d0c4844fd.png"],
-          ["Inverted Triangle", "69b8603fad0276ed862d73e3.png"]
-        ]
-      },
-      {
-        field: "faceShape",
-        label: "What's your face shape?",
-        hint: "Select the shape closest to yours.",
-        cols: 7,
-        options: [
-          ["Oval", "69c99e5e3204cc4b7c712866.png"],
-          ["Round", "69c99e5e3204cc4c67712867.png"],
-          ["Square", "69c99e5ecd51593a104fa898.png"],
-          ["Heart", "69c99e5e97dabdc0493c1be3.png"],
-          ["Oblong", "69c99e5f8c28760f268ad513.png"],
-          ["Diamond", "69c99e5e97dabd164f3c1be2.png"],
-          ["Triangle", "69c99e508c2876a1028ad43b.png"]
-        ]
-      },
-      {
-        field: "chestBack",
-        label: "Chest and back posture",
-        hint: "Select the profile that matches your natural posture.",
-        cols: 3,
-        options: [
-          ["Forward Chest", "69b865b81cb8356979b94770.png"],
-          ["Normal Chest", "69b865b8ad0276bd702e1c47.png"],
-          ["Round Back", "69b865b81cb8352471b94771.png"]
-        ]
-      },
-      {
-        field: "stomach",
-        label: "Stomach profile",
-        hint: "Select the profile closest to yours from the side.",
-        cols: 4,
-        options: [
-          ["Flat", "69b865e27a4cd1b45f4e73f3.png"],
-          ["Forward Stomach", "69b865e287f0f2ec584221af.png"],
-          ["Stout", "69b865e2da156a96f368b1da.png"],
-          ["Large", "69b865e287f2fbf47cb0df1b.png"]
-        ]
-      },
-      {
-        field: "shoulder",
-        label: "Shoulder type",
-        hint: "Select the shoulder shape that matches yours.",
-        cols: 3,
-        options: [
-          ["Drop", "69cac8fbca19f87153a94196.png"],
-          ["Normal", "69cac8fbca19f893c5a94192.png"],
-          ["Square", "69cac8fb4a9b249e3f1c730a.png"]
-        ]
-      }
-    ];
 
     (function fillPickers() {
       const codeSel = document.getElementById("phoneCountry");
@@ -697,23 +731,34 @@
       const grid = document.createElement("div");
       grid.className = "icon-grid cols-" + group.cols;
       grid.dataset.field = group.field;
-      group.options.forEach(([name, file]) => {
+      const hidden = document.createElement("input");
+      hidden.type = "hidden";
+      hidden.name = group.field;
+      hidden.required = true;
+      const unsure = document.createElement("button");
+      unsure.type = "button";
+      unsure.className = "unsure-btn";
+      unsure.textContent = "I'm not sure — Kyle will confirm";
+      group.options.forEach(([name, file, blurb]) => {
         const card = document.createElement("div");
         card.className = "icon-card";
         card.dataset.value = name;
-        card.innerHTML = checkSvg + '<img alt="' + name + '" src="' + IMG + file + '"><div class="name">' + name + "</div>";
+        card.innerHTML = checkSvg + '<img alt="' + name + '" src="' + VISUAL + file + '"><div class="name">' + name + "</div><div class=\"blurb\">" + blurb + "</div>";
         card.addEventListener("click", () => {
           grid.querySelectorAll(".icon-card").forEach((c) => c.classList.remove("selected"));
+          unsure.classList.remove("selected");
           card.classList.add("selected");
           hidden.value = name;
         });
         grid.appendChild(card);
       });
-      const hidden = document.createElement("input");
-      hidden.type = "hidden";
-      hidden.name = group.field;
-      hidden.required = true;
+      unsure.addEventListener("click", () => {
+        grid.querySelectorAll(".icon-card").forEach((c) => c.classList.remove("selected"));
+        unsure.classList.add("selected");
+        hidden.value = "I'm not sure";
+      });
       wrap.appendChild(grid);
+      wrap.appendChild(unsure);
       wrap.appendChild(hidden);
       selectorsEl.appendChild(wrap);
     });
