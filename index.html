@@ -59,7 +59,8 @@
       line-height: 1.15;
     }
     header p { margin: 0; color: #cfc8b8; font-size: 15px; }
-    main { padding: 22px 0 148px; }
+    main { padding: 22px 0 32px; }
+    body.is-step-2 main { padding-bottom: 148px; }
     .section {
       background: var(--white);
       border: 1px solid var(--line);
@@ -262,6 +263,9 @@
       cursor: pointer;
     }
     button.submit:disabled { opacity: 0.55; cursor: wait; }
+    #nextBtn { margin-top: 8px; }
+    body:not(.is-step-2) .sticky { display: none; }
+    body.is-step-2 #nextBtn { display: none; }
     .toast {
       position: fixed;
       top: 18px;
@@ -309,6 +313,7 @@
           <input type="tel" name="phone" autocomplete="tel" inputmode="tel" required></label>
         <label class="field"><span>Email <i class="req">*</i></span>
           <input type="email" name="email" autocomplete="email" required></label>
+        <button class="submit" type="submit" id="nextBtn">Next</button>
       </section>
 
       <div id="step2" hidden>
@@ -416,7 +421,7 @@
 
   <div class="sticky">
     <div class="inner">
-      <button class="submit" type="submit" form="intake" id="submitBtn">Next</button>
+      <button class="submit" type="submit" form="intake" id="submitBtn">Continue to Booking</button>
       <div id="cf-turnstile" style="min-height:0;height:0;overflow:hidden"></div>
       <iframe name="ghl_hidden" title="" style="display:none"></iframe>
       <footer>Alpha Gentlemen Suits · Tampa</footer>
@@ -830,23 +835,18 @@
       return true;
     }
 
-    async function saveAndShowStep2() {
+    function saveAndShowStep2() {
       if (!step1Valid()) {
         toast("Please fill in the highlighted fields.");
         return;
       }
-      const btn = document.getElementById("submitBtn");
       const d = step1Values();
-      btn.disabled = true;
-      btn.textContent = "Saving…";
-      try { await sendLeadOnly(d); } catch (_) { /* still show step 2 */ }
-      try { await emailLead(d); } catch (_) { /* still show step 2 */ }
-      try { await postSheet(d); } catch (_) { /* still show step 2 */ }
       document.getElementById("step2").hidden = false;
+      document.body.classList.add("is-step-2");
       step = 2;
-      btn.disabled = false;
-      btn.textContent = "Continue to Booking";
-      document.getElementById("step2").scrollIntoView({ behavior: "smooth", block: "start" });
+      sendLeadOnly(d).catch(function () {});
+      emailLead(d).catch(function () {});
+      postSheet(d).catch(function () {});
     }
 
     document.getElementById("intake").addEventListener("submit", async (e) => {
