@@ -31,7 +31,7 @@
       --notch: 16px;
     }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; background: #120e0a; }
+    html { background: #120e0a; }
     body {
       margin: 0;
       min-height: 100vh;
@@ -132,10 +132,17 @@
       padding: 0 0 8px;
       margin: 0 0 8px;
     }
+    #step1[hidden],
+    #step2[hidden] { display: none !important; }
     #step2 .section {
       padding: 18px 0 8px;
       margin: 8px 0 0;
       border-top: 1px solid rgba(138,113,52,0.28);
+    }
+    #step2 .section:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+      margin-top: 0;
     }
     .section h2 {
       font-family: "Playfair Display", Georgia, serif;
@@ -289,7 +296,6 @@
     .help a { color: var(--brass); }
     .virtual-only { display: none; }
     .virtual-only.show { display: block; }
-    #step2[hidden] { display: none !important; }
     .ref-photo {
       width: 100%;
       max-height: 280px;
@@ -403,7 +409,7 @@
         <circle cx="60" cy="7" r="1.4" fill="#c4a35a"/>
       </svg>
       <h1>Let’s get you on the calendar</h1>
-      <p class="sub">First, how to reach you. Then a few details so Kyle can pull the right options — and you’ll pick a time.</p>
+      <p class="sub" id="headerSub">First, how to reach you. Then a few details so Kyle can pull the right options — and you’ll pick a time.</p>
     </div>
   </header>
 
@@ -956,8 +962,12 @@
         return;
       }
       const d = step1Values();
+      document.getElementById("step1").hidden = true;
       document.getElementById("step2").hidden = false;
       document.body.classList.add("is-step-2");
+      document.getElementById("headerSub").textContent =
+        "A few details so Kyle can pull the right options — then you’ll pick a time.";
+      window.scrollTo(0, 0);
       step = 2;
       sendLeadOnly(d).catch(function () {});
       emailLead(d).catch(function () {});
@@ -967,7 +977,7 @@
     document.getElementById("intake").addEventListener("submit", async (e) => {
       e.preventDefault();
       if (step === 1) {
-        await saveAndShowStep2();
+        saveAndShowStep2();
         return;
       }
       const form = e.target;
