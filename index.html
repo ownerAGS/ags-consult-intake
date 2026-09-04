@@ -204,6 +204,7 @@
     .help a { color: var(--brass); }
     .virtual-only { display: none; }
     .virtual-only.show { display: block; }
+    #step2[hidden] { display: none !important; }
     .ref-photo {
       width: 100%;
       max-height: 280px;
@@ -289,15 +290,15 @@
     <div class="wrap">
       <p class="eyebrow">Alpha Gentlemen Suits</p>
       <h1>Let’s get you on the calendar</h1>
-      <p>A few details so Kyle can pull the right options. When you submit, you’ll pick a time for your visit.</p>
+      <p>First, how to reach you. Then a few details so Kyle can pull the right options — and you’ll pick a time.</p>
     </div>
   </header>
 
   <main>
     <form id="intake" class="wrap" novalidate>
-      <section class="section">
+      <section class="section" id="step1">
         <h2>About you</h2>
-        <p class="lede">So we can reach you and know where you’re coming from.</p>
+        <p class="lede">So we can reach you.</p>
         <div class="row-2">
           <label class="field"><span>First name <i class="req">*</i></span>
             <input type="text" name="firstName" autocomplete="given-name" required></label>
@@ -308,6 +309,12 @@
           <input type="tel" name="phone" autocomplete="tel" inputmode="tel" required></label>
         <label class="field"><span>Email <i class="req">*</i></span>
           <input type="email" name="email" autocomplete="email" required></label>
+      </section>
+
+      <div id="step2" hidden>
+      <section class="section">
+        <h2>Your visit</h2>
+        <p class="lede">Where you’re coming from, and how you’d like to meet.</p>
         <div class="row-2">
           <label class="field"><span>City <i class="req">*</i></span>
             <input type="text" name="city" autocomplete="address-level2" required></label>
@@ -403,12 +410,13 @@
           <span>By checking this box, I consent to receive text messages from Alpha Gentlemen Suits (Ploucher Enterprise LLC) about consultation scheduling, appointment reminders, order status updates, production and fulfillment notifications, and deposit requests at the phone number provided. Message frequency varies. Message &amp; data rates may apply. Text HELP for assistance, reply STOP to opt out.</span>
         </label>
       </section>
+      </div>
     </form>
   </main>
 
   <div class="sticky">
     <div class="inner">
-      <button class="submit" type="submit" form="intake" id="submitBtn">Continue to Booking</button>
+      <button class="submit" type="submit" form="intake" id="submitBtn">Next</button>
       <div id="cf-turnstile" style="min-height:0;height:0;overflow:hidden"></div>
       <iframe name="ghl_hidden" title="" style="display:none"></iframe>
       <footer>Alpha Gentlemen Suits · Tampa</footer>
@@ -738,6 +746,31 @@
       return res.ok;
     }
 
+    async function emailLead(d) {
+      const fd = new FormData();
+      fd.append("firstName", d.firstName);
+      fd.append("lastName", d.lastName);
+      fd.append("phone", d.phone);
+      fd.append("email", d.email);
+      fd.append("_subject", "AGS intake started — " + d.firstName + " " + d.lastName);
+      fd.append("_template", "table");
+      fd.append("_captcha", "false");
+      const res = await fetch("https://formsubmit.co/ajax/owner@alphagentlemensuits.com", {
+        method: "POST",
+        body: fd
+      });
+      return res.ok;
+    }
+
+    async function sendLeadOnly(d) {
+      await ghlPost(GHL_LEAD_FORM, {
+        first_name: d.firstName,
+        last_name: d.lastName,
+        phone: d.phone,
+        email: d.email
+      });
+    }
+
     async function sendToCrm(d, photo) {
       const lead = {
         first_name: d.firstName,
@@ -772,8 +805,56 @@
       await ghlPost(GHL_CONSULT_FORM[d.consultType] || GHL_CONSULT_FORM["In Person"], consult, "Lx8SUPtcE89cBrUP5MZw", photo);
     }
 
+    let step = 1;
+
+    function step1Values() {
+      const form = document.getElementById("intake");
+      return {
+        firstName: form.firstName.value.trim(),
+        lastName: form.lastName.value.trim(),
+        phone: form.phone.value.trim(),
+        email: form.email.value.trim()
+      };
+    }
+
+    function step1Valid() {
+      const form = document.getElementById("intake");
+      const names = ["firstName", "lastName", "phone", "email"];
+      for (let i = 0; i < names.length; i++) {
+        const el = form.elements[names[i]];
+        if (!el.checkValidity()) {
+          el.reportValidity();
+          return false;
+        }
+      }
+      return true;
+    }
+
+    async function saveAndShowStep2() {
+      if (!step1Valid()) {
+        toast("Please fill in the highlighted fields.");
+        return;
+      }
+      const btn = document.getElementById("submitBtn");
+      const d = step1Values();
+      btn.disabled = true;
+      btn.textContent = "Saving…";
+      try { await sendLeadOnly(d); } catch (_) { /* still show step 2 */ }
+      try { await emailLead(d); } catch (_) { /* still show step 2 */ }
+      try { await postSheet(d); } catch (_) { /* still show step 2 */ }
+      document.getElementById("step2").hidden = false;
+      step = 2;
+      btn.disabled = false;
+      btn.textContent = "Continue to Booking";
+      document.getElementById("step2").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
     document.getElementById("intake").addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (step === 1) {
+        await saveAndShowStep2();
+        return;
+      }
       const form = e.target;
       if (!form.checkValidity()) {
         form.reportValidity();
