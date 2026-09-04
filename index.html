@@ -997,13 +997,13 @@
       return miss;
     }
 
-    function shrinkPhoto(file) {
+    function shrinkPhoto(file, maxEdge, quality) {
       return new Promise((resolve) => {
-        if (!file || !file.type.startsWith("image/")) return resolve(file);
+        if (!file || !file.type || file.type.indexOf("image/") !== 0) return resolve(file);
         const img = new Image();
         const url = URL.createObjectURL(file);
         img.onload = () => {
-          const max = 1600;
+          const max = maxEdge || 1200;
           let w = img.width, h = img.height;
           if (Math.max(w, h) > max) {
             const scale = max / Math.max(w, h);
@@ -1017,7 +1017,7 @@
           canvas.toBlob((blob) => {
             URL.revokeObjectURL(url);
             resolve(blob ? new File([blob], "client-photo.jpg", { type: "image/jpeg" }) : file);
-          }, "image/jpeg", 0.82);
+          }, "image/jpeg", quality == null ? 0.72 : quality);
         };
         img.onerror = () => {
           URL.revokeObjectURL(url);
@@ -1025,6 +1025,13 @@
         };
         img.src = url;
       });
+    }
+
+    async function shrinkPhotoForSheet(file) {
+      let out = await shrinkPhoto(file, 900, 0.65);
+      if (out && out.size > 35000) out = await shrinkPhoto(out, 700, 0.5);
+      if (out && out.size > 35000) out = await shrinkPhoto(out, 520, 0.42);
+      return out;
     }
 
     function composePhone(form) {
@@ -1050,10 +1057,37 @@
       return res.ok;
     }
 
+    function fieldValue(form, name) {
+      const el = form.elements[name];
+      if (!el) return "";
+      if (el.type === "checkbox") return el.checked ? "on" : "";
+      return String(el.value || "").trim();
+    }
+
     function values(form) {
-      const d = Object.fromEntries(new FormData(form).entries());
-      d.phone = composePhone(form);
-      return d;
+      return {
+        firstName: fieldValue(form, "firstName"),
+        lastName: fieldValue(form, "lastName"),
+        phone: composePhone(form),
+        email: fieldValue(form, "email"),
+        city: fieldValue(form, "city"),
+        state: fieldValue(form, "state"),
+        consultType: fieldValue(form, "consultType"),
+        occasion: fieldValue(form, "occasion"),
+        buildType: fieldValue(form, "buildType"),
+        climate: fieldValue(form, "climate"),
+        priorSuit: fieldValue(form, "priorSuit"),
+        timeline: fieldValue(form, "timeline"),
+        budget: fieldValue(form, "budget"),
+        bodyType: fieldValue(form, "bodyType"),
+        faceShape: fieldValue(form, "faceShape"),
+        chestBack: fieldValue(form, "chestBack"),
+        stomach: fieldValue(form, "stomach"),
+        shoulder: fieldValue(form, "shoulder"),
+        height: fieldValue(form, "height"),
+        weight: fieldValue(form, "weight"),
+        smsConsent: fieldValue(form, "smsConsent")
+      };
     }
 
     function summary(d, photoName) {
@@ -1178,22 +1212,26 @@
         weight: d.weight,
         smsConsent: d.smsConsent === true || d.smsConsent === "yes" || d.smsConsent === "on" ? "yes" : (d.smsConsent ? "yes" : ""),
         bookingLink: bookLink,
-        appointmentTime: d.appointmentTime || "",
-        photoMime: photo && photo.type,
-        photoBase64: photo ? await fileToBase64(photo) : ""
+        appointmentTime: d.appointmentTime || ""
       };
+      if (photo) {
+        payload.photoMime = photo.type || "image/jpeg";
+        payload.photoBase64 = await fileToBase64(photo);
+      }
       const body = JSON.stringify(payload);
-      try {
-        if (!photo && navigator.sendBeacon) {
-          const blob = new Blob([body], { type: "text/plain" });
-          if (navigator.sendBeacon(SHEET_HOOK, blob)) return true;
-        }
-      } catch (_) { /* fall through to fetch */ }
+      if (!photo) {
+        try {
+          if (navigator.sendBeacon) {
+            const blob = new Blob([body], { type: "text/plain" });
+            if (navigator.sendBeacon(SHEET_HOOK, blob)) return true;
+          }
+        } catch (_) { /* fall through to fetch */ }
+      }
       try {
         await fetch(SHEET_HOOK, {
           method: "POST",
           mode: "no-cors",
-          keepalive: true,
+          keepalive: !photo,
           headers: { "Content-Type": "text/plain" },
           body: body
         });
@@ -1300,16 +1338,20 @@
       btn.textContent = "Sending…";
       let photo = original;
       try {
-        if (original) photo = await shrinkPhoto(original);
+        if (original) photo = await shrinkPhoto(original, 1400, 0.78);
       } catch (_) { photo = original; }
       const text = summary(d, photo && photo.name);
       try {
         localStorage.setItem("ags-last-intake", text);
         await navigator.clipboard.writeText(text);
       } catch (_) { /* phone may block clipboard; booking still proceeds */ }
+      try { await postSheet(d, null, url, "details"); } catch (_) { /* answers still try below */ }
+      try {
+        const sheetPhoto = original ? await shrinkPhotoForSheet(original) : null;
+        if (sheetPhoto) await postSheet(d, sheetPhoto, url, "details");
+      } catch (_) { /* answers already sent */ }
       try { await sendToCrm(d, photo); } catch (_) { /* booking still proceeds */ }
       try { await emailIntake(form, photo); } catch (_) { /* booking still proceeds */ }
-      try { await postSheet(d, photo, url, "details"); } catch (_) { /* booking still proceeds */ }
       btn.textContent = "Opening your calendar…";
       window.location.href = url;
     });
