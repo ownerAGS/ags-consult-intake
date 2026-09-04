@@ -3,6 +3,6 @@
   "short_name": "AGS Booking",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#16181c",
-  "theme_color": "#16181c"
+  "background_color": "#120e0a",
+  "theme_color": "#1a1410"
 }
