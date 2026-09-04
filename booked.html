@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>You’re booked</title>
+  <style>
+    body { font-family: Georgia, serif; background: #f7f1e4; color: #16120e; text-align: center; padding: 48px 20px; }
+    h1 { font-weight: 500; }
+  </style>
+</head>
+<body>
+  <h1>You’re on Kyle’s calendar.</h1>
+  <p>We’ll see you then. You can close this page.</p>
+  <script>
+    (function () {
+      const hook = "https://script.google.com/macros/s/AKfycbwC-PCmoaIsRbwOBePKzPLwFBf0_RkA9khBy9wVkfoLnhVroOBOwqeyKE0x7rJw5dvx/exec";
+      if (hook.indexOf("AGS_INTAKE_HOOK") !== -1) return;
+      const q = new URLSearchParams(location.search);
+      const payload = {
+        token: "ags-intake-v1",
+        stage: "scheduled",
+        intakeId: q.get("intakeId") || "",
+        email: q.get("email") || "",
+        firstName: q.get("firstName") || q.get("name") || "",
+        lastName: q.get("lastName") || "",
+        phone: q.get("phone") || "",
+        appointmentTime: q.get("start") || q.get("event_start_time") || q.get("time") || "",
+        submittedAt: new Date().toISOString()
+      };
+      try {
+        navigator.sendBeacon(hook, new Blob([JSON.stringify(payload)], { type: "text/plain" }));
+      } catch (_) {}
+    })();
+  </script>
+</body>
+</html>

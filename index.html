@@ -633,7 +633,7 @@
 
   <div class="sticky">
     <div class="inner">
-      <button class="submit" type="submit" form="intake" id="submitBtn">Continue to Booking</button>
+      <button class="submit" type="submit" form="intake" id="submitBtn">Book consultation</button>
       <div id="cf-turnstile" style="min-height:0;height:0;overflow:hidden"></div>
       <iframe name="ghl_hidden" title="" style="display:none"></iframe>
       <footer>Alpha Gentlemen Suits · Tampa</footer>
@@ -698,10 +698,11 @@
       "Virtual": "p47RCE4b9VqsxG4dqDdE"
     };
     const BOOKING = {
-      "In Person": "https://app.usemotion.com/meet/kyle-ploucher-5mh8/wym2bsp",
-      "Virtual": "https://app.usemotion.com/meet/kyle-ploucher-5mh8/styygp8"
+      "In Person": "https://calendar.app.google/Z2xLAsYKyHGJJKtf9",
+      "Virtual": "https://calendar.app.google/Z2xLAsYKyHGJJKtf9"
     };
-    const SHEET_HOOK = "";
+    const SHEET_HOOK = "https://script.google.com/macros/s/AKfycbwC-PCmoaIsRbwOBePKzPLwFBf0_RkA9khBy9wVkfoLnhVroOBOwqeyKE0x7rJw5dvx/exec";
+    const SHEET_TOKEN = "ags-intake-v1";
     let turnstileToken = "";
     const COUNTRY_CODES = [
       ["US +1", "1"], ["CA +1", "1"], ["GB +44", "44"], ["AU +61", "61"],
@@ -1081,15 +1082,21 @@
       ].join("\n");
     }
 
+    function intakeId() {
+      try {
+        let id = sessionStorage.getItem("agsIntakeId");
+        if (!id) {
+          id = (crypto.randomUUID && crypto.randomUUID()) || ("t" + Date.now() + Math.random().toString(16).slice(2));
+          sessionStorage.setItem("agsIntakeId", id);
+        }
+        return id;
+      } catch (_) {
+        return "t" + Date.now();
+      }
+    }
+
     function bookingUrl(consult, d) {
-      const q = new URLSearchParams({
-        email: d.email || "",
-        name: ((d.firstName || "") + " " + (d.lastName || "")).trim(),
-        firstName: d.firstName || "",
-        lastName: d.lastName || "",
-        phone: d.phone || ""
-      });
-      return BOOKING[consult] + "?" + q.toString();
+      return BOOKING[consult] || BOOKING["In Person"];
     }
 
     function ghlBody(fields, fileField, file) {
@@ -1142,9 +1149,12 @@
       return btoa(bin);
     }
 
-    async function postSheet(d, photo, bookLink) {
-      if (!SHEET_HOOK) return false;
+    async function postSheet(d, photo, bookLink, stage) {
+      if (!SHEET_HOOK || SHEET_HOOK.indexOf("AGS_INTAKE_HOOK") !== -1) return false;
       const payload = {
+        token: SHEET_TOKEN,
+        stage: stage || "lead",
+        intakeId: intakeId(),
         submittedAt: new Date().toISOString(),
         firstName: d.firstName,
         lastName: d.lastName,
@@ -1166,17 +1176,31 @@
         shoulder: d.shoulder,
         height: d.height,
         weight: d.weight,
-        smsConsent: d.smsConsent ? "yes" : "no",
+        smsConsent: d.smsConsent === true || d.smsConsent === "yes" || d.smsConsent === "on" ? "yes" : (d.smsConsent ? "yes" : ""),
         bookingLink: bookLink,
+        appointmentTime: d.appointmentTime || "",
         photoMime: photo && photo.type,
-        photoBase64: await fileToBase64(photo)
+        photoBase64: photo ? await fileToBase64(photo) : ""
       };
-      const res = await fetch(SHEET_HOOK, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain" },
-        body: JSON.stringify(payload)
-      });
-      return res.ok;
+      const body = JSON.stringify(payload);
+      try {
+        if (!photo && navigator.sendBeacon) {
+          const blob = new Blob([body], { type: "text/plain" });
+          if (navigator.sendBeacon(SHEET_HOOK, blob)) return true;
+        }
+      } catch (_) { /* fall through to fetch */ }
+      try {
+        await fetch(SHEET_HOOK, {
+          method: "POST",
+          mode: "no-cors",
+          keepalive: true,
+          headers: { "Content-Type": "text/plain" },
+          body: body
+        });
+        return true;
+      } catch (_) {
+        return false;
+      }
     }
 
     async function emailLead(d) {
@@ -1196,46 +1220,11 @@
     }
 
     async function sendLeadOnly(d) {
-      await ghlPost(GHL_LEAD_FORM, {
-        first_name: d.firstName,
-        last_name: d.lastName,
-        phone: d.phone,
-        email: d.email
-      });
+      /* Elite 360 import happens later from the sheet. */
     }
 
     async function sendToCrm(d, photo) {
-      const lead = {
-        first_name: d.firstName,
-        last_name: d.lastName,
-        phone: d.phone,
-        email: d.email,
-        city: d.city,
-        state: d.state,
-        w6XeTJFmRRygOHAMw9Sr: d.consultType,
-        "1SHwIOLiytQnjBtYF157": d.occasion,
-        rIhzhn7VCXWS8SJLGYZj: d.buildType,
-        "6BAXFcBwCHmxTZ84culn": d.climate,
-        SWH0tWZ7nX59aTzuXi0I: d.priorSuit,
-        PdARjGB8Z2gFOGQxA3Bl: d.timeline,
-        "2I89TWT99DsTqtZ1k4nT": d.budget
-      };
-      if (d.smsConsent) lead.terms_and_conditions = "terms_and_conditions";
-      const consult = {
-        first_name: d.firstName,
-        last_name: d.lastName,
-        phone: d.phone,
-        email: d.email,
-        "21a5DROBB7bwBa6XPzvU": d.bodyType,
-        HCcIUZQo8QVJcemkOGd4: d.faceShape,
-        HWRK0IZ49frDiXz1Phhh: d.chestBack,
-        fNWr9FgJJQ0pSdelcqT2: d.stomach,
-        "0CzMGdS0ZC88fRMVR8OT": d.shoulder,
-        MIi4NuU7VgP8UUFnk80N: d.height,
-        APs2oq9F9pndy6yrraPT: d.weight
-      };
-      await ghlPost(GHL_LEAD_FORM, lead);
-      await ghlPost(GHL_CONSULT_FORM[d.consultType] || GHL_CONSULT_FORM["In Person"], consult, "Lx8SUPtcE89cBrUP5MZw", photo);
+      /* Elite 360 import happens later from the sheet. */
     }
 
     let step = 1;
@@ -1279,7 +1268,7 @@
       getFaceLandmarker().catch(function () {});
       sendLeadOnly(d).catch(function () {});
       emailLead(d).catch(function () {});
-      postSheet(d).catch(function () {});
+      postSheet(d, null, "", "lead").catch(function () {});
     }
 
     document.getElementById("intake").addEventListener("submit", async (e) => {
@@ -1320,7 +1309,7 @@
       } catch (_) { /* phone may block clipboard; booking still proceeds */ }
       try { await sendToCrm(d, photo); } catch (_) { /* booking still proceeds */ }
       try { await emailIntake(form, photo); } catch (_) { /* booking still proceeds */ }
-      try { await postSheet(d, photo, url); } catch (_) { /* booking still proceeds */ }
+      try { await postSheet(d, photo, url, "details"); } catch (_) { /* booking still proceeds */ }
       btn.textContent = "Opening your calendar…";
       window.location.href = url;
     });
