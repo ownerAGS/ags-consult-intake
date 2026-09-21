@@ -1258,11 +1258,46 @@
     }
 
     async function sendLeadOnly(d) {
-      /* Elite 360 import happens later from the sheet. */
+      await ghlPost(GHL_LEAD_FORM, {
+        first_name: d.firstName,
+        last_name: d.lastName,
+        phone: d.phone,
+        email: d.email
+      });
     }
 
     async function sendToCrm(d, photo) {
-      /* Elite 360 import happens later from the sheet. */
+      const lead = {
+        first_name: d.firstName,
+        last_name: d.lastName,
+        phone: d.phone,
+        email: d.email,
+        city: d.city,
+        state: d.state,
+        w6XeTJFmRRygOHAMw9Sr: d.consultType,
+        "1SHwIOLiytQnjBtYF157": d.occasion,
+        rIhzhn7VCXWS8SJLGYZj: d.buildType,
+        "6BAXFcBwCHmxTZ84culn": d.climate,
+        SWH0tWZ7nX59aTzuXi0I: d.priorSuit,
+        PdARjGB8Z2gFOGQxA3Bl: d.timeline,
+        "2I89TWT99DsTqtZ1k4nT": d.budget
+      };
+      if (d.smsConsent) lead.terms_and_conditions = "terms_and_conditions";
+      const consult = {
+        first_name: d.firstName,
+        last_name: d.lastName,
+        phone: d.phone,
+        email: d.email,
+        "21a5DROBB7bwBa6XPzvU": d.bodyType,
+        HCcIUZQo8QVJcemkOGd4: d.faceShape,
+        HWRK0IZ49frDiXz1Phhh: d.chestBack,
+        fNWr9FgJJQ0pSdelcqT2: d.stomach,
+        "0CzMGdS0ZC88fRMVR8OT": d.shoulder,
+        MIi4NuU7VgP8UUFnk80N: d.height,
+        APs2oq9F9pndy6yrraPT: d.weight
+      };
+      await ghlPost(GHL_LEAD_FORM, lead);
+      await ghlPost(GHL_CONSULT_FORM[d.consultType] || GHL_CONSULT_FORM["In Person"], consult, "Lx8SUPtcE89cBrUP5MZw", photo);
     }
 
     let step = 1;
