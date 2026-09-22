@@ -9,7 +9,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="AGS Profile">
   <link rel="manifest" href="manifest.webmanifest">
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
   <link rel="apple-touch-icon" href="https://alphagentlemensuits.com/cdn/shop/files/logo_f9536896-d3d9-467b-9a93-4dd193670fce.jpg">
   <title>Your consultation profile</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,17 +16,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Lato:wght@400;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --ink: #16120e;
-      --body: #2c261c;
-      --muted: #6b6254;
-      --brass: #8a7134;
-      --gold: #c4a35a;
       --ivory: #f4efe3;
+      --gold: #c4a35a;
       --paper: #f7f1e4;
-      --field: #ebe3d2;
-      --line: #c4b48a;
-      --flag: #8c3b2f;
-      --ok: #2f6b4f;
       --notch: 16px;
     }
     * { box-sizing: border-box; }
@@ -36,9 +27,7 @@
       margin: 0;
       min-height: 100vh;
       font-family: "Cormorant Garamond", Georgia, serif;
-      color: var(--body);
-      line-height: 1.5;
-      background: transparent;
+      color: #2c261c;
     }
     .scene-bg {
       position: fixed;
@@ -52,14 +41,13 @@
       inset: 0;
       background: linear-gradient(180deg, rgba(10,7,5,0.38) 0%, rgba(10,7,5,0.58) 100%);
     }
-    header, main, .conduct, .sticky { position: relative; z-index: 1; }
+    header, main, .conduct { position: relative; z-index: 1; }
     header {
-      background: transparent;
-      color: var(--ivory);
       padding: 28px 20px 8px;
       text-align: center;
+      color: var(--ivory);
     }
-    .wrap { max-width: 520px; margin: 0 auto; padding: 0 18px; }
+    .wrap { max-width: 640px; margin: 0 auto; padding: 0 18px 40px; }
     .eyebrow {
       font-family: Cinzel, "Playfair Display", serif;
       font-size: 11px;
@@ -68,12 +56,7 @@
       margin: 0 0 10px;
       text-transform: uppercase;
     }
-    .ornament {
-      display: block;
-      width: 92px;
-      height: 14px;
-      margin: 0 auto 14px;
-    }
+    .ornament { display: block; width: 92px; height: 14px; margin: 0 auto 14px; }
     h1 {
       font-family: "Playfair Display", Georgia, serif;
       font-weight: 500;
@@ -90,15 +73,10 @@
       font-size: 16px;
       font-style: italic;
     }
-    main { padding: 18px 0 24px; }
-    main { padding-bottom: 148px; }
+    main { padding: 18px 0 48px; }
     .parchment {
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.28), transparent 28%),
-        repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(120,90,40,0.035) 4px),
-        var(--paper);
-      color: var(--ink);
-      padding: 28px 22px 26px;
+      background: var(--paper);
+      padding: 22px 14px 10px;
       clip-path: polygon(
         var(--notch) 0, calc(100% - var(--notch)) 0,
         100% var(--notch), 100% calc(100% - var(--notch)),
@@ -107,15 +85,14 @@
       );
       box-shadow:
         inset 0 0 0 1px rgba(196,163,90,0.55),
-        inset 0 0 0 7px var(--paper),
-        inset 0 0 0 8px rgba(138,113,52,0.4),
         0 28px 70px rgba(0,0,0,0.55);
     }
     .monogram {
       display: flex;
       align-items: center;
       gap: 14px;
-      margin: 0 0 22px;
+      margin: 0 0 16px;
+      padding: 0 8px;
     }
     .monogram::before,
     .monogram::after {
@@ -126,358 +103,48 @@
     }
     .monogram::after { background: linear-gradient(90deg, var(--gold), transparent); }
     .monogram img { height: 48px; width: auto; display: block; }
-    .section {
-      background: transparent;
-      border: 0;
-      padding: 0 0 8px;
-      margin: 0 0 8px;
-    }
-    #step1[hidden],
-    #step2[hidden] { display: none !important; }
-    #step2 .section {
-      padding: 18px 0 8px;
-      margin: 8px 0 0;
-      border-top: 1px solid rgba(138,113,52,0.28);
-    }
-    #step2 .section:first-of-type {
-      border-top: 0;
-      padding-top: 0;
-      margin-top: 0;
-    }
-    .section h2 {
-      font-family: "Playfair Display", Georgia, serif;
-      font-weight: 600;
-      font-size: 22px;
-      color: var(--ink);
-      margin: 0 0 4px;
-    }
-    .section .lede {
-      margin: 0 0 16px;
-      color: var(--brass);
-      font-family: Cinzel, serif;
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-    }
-    .sel-label {
-      font-family: "Playfair Display", Georgia, serif;
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--ink);
-      margin-bottom: 4px;
-    }
-    label.field {
-      display: block;
-      margin: 0 0 12px;
-    }
-    label.field span {
-      display: block;
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--ink);
-      margin-bottom: 6px;
-    }
-    .req { color: var(--flag); font-style: normal; font-weight: 700; }
-    input[type="text"],
-    input[type="email"],
-    input[type="tel"],
-    select,
-    textarea {
-      width: 100%;
-      appearance: none;
-      -webkit-appearance: none;
-      background: var(--field);
-      border: 1px solid var(--line);
-      color: var(--ink);
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: 17px;
-      padding: 11px 12px;
-      border-radius: 0;
-    }
-    select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238a7134' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 10px center;
-      padding-right: 28px;
-    }
-    textarea { min-height: 88px; resize: vertical; }
-    .phone-row {
-      display: grid;
-      grid-template-columns: 112px 1fr;
-      gap: 8px;
-    }
-    .phone-row select { font-size: 15px; padding-left: 8px; }
-    input:focus, select:focus, textarea:focus {
-      outline: 1px solid var(--brass);
-      outline-offset: 1px;
-      border-color: var(--brass);
-      background: #f4efe3;
-    }
-    .row-2 {
+    .tabs {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .choice-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .choice {
-      border: 1px solid var(--line);
-      background: var(--field);
-      padding: 14px 10px;
-      text-align: center;
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--ink);
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .choice.selected {
-      border-color: var(--brass);
-      background: #f4efe3;
-      box-shadow: inset 0 0 0 1px var(--gold);
-    }
-    .icon-grid {
-      display: grid;
-      gap: 10px;
-    }
-    .cols-5, .cols-7 { grid-template-columns: repeat(2, 1fr); }
-    .cols-4 { grid-template-columns: repeat(2, 1fr); }
-    .cols-3 { grid-template-columns: repeat(3, 1fr); }
-    @media (min-width: 520px) {
-      .cols-5 { grid-template-columns: repeat(5, 1fr); }
-      .cols-7 { grid-template-columns: repeat(4, 1fr); }
-      .cols-4 { grid-template-columns: repeat(4, 1fr); }
-    }
-    .icon-card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 6px 6px 10px;
-      border: 1px solid var(--line);
-      background: var(--field);
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-    .icon-card img {
-      width: 100%;
-      height: 148px;
-      object-fit: cover;
-      object-position: top center;
-      pointer-events: none;
-      background: #e6dcc8;
-    }
-    .icon-grid.cols-5 .icon-card img {
-      height: 210px;
-      object-position: center top;
-    }
-    .face-preview {
-      width: 100%;
-      max-height: 240px;
-      object-fit: cover;
-      object-position: top;
-      border: 1px solid var(--line);
-      margin: 10px 0 8px;
-      background: var(--field);
-    }
-    .face-result {
-      font-family: "Playfair Display", Georgia, serif;
-      font-size: 17px;
-      margin: 8px 0 10px;
-      color: var(--ink);
-    }
-    .face-result strong { color: var(--brass); }
-    .face-chips {
-      display: flex;
-      flex-wrap: wrap;
       gap: 8px;
-      margin: 8px 0 4px;
+      margin: 0 8px 14px;
     }
-    .face-chip {
-      border: 1px solid var(--line);
-      background: var(--field);
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: 14px;
-      font-weight: 600;
-      padding: 8px 12px;
-      cursor: pointer;
-      color: var(--ink);
-    }
-    .face-chip.selected {
-      border-color: var(--brass);
-      box-shadow: inset 0 0 0 1px var(--gold);
-    }
-    .icon-card .name {
+    .tab {
       font-family: Cinzel, serif;
-      font-size: 9px;
-      font-weight: 600;
+      font-size: 12px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--ink);
-      margin-top: 8px;
-      text-align: center;
-      line-height: 1.25;
-    }
-    .icon-card .blurb {
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: 13px;
-      font-style: italic;
-      font-weight: 500;
-      letter-spacing: 0;
-      text-transform: none;
-      color: var(--muted);
-      margin-top: 2px;
-      text-align: center;
-      line-height: 1.3;
-      padding: 0 4px;
-    }
-    .icon-card.selected {
-      border-color: var(--brass);
-      box-shadow: inset 0 0 0 1px var(--gold);
-    }
-    .icon-card.selected .name { color: var(--ink); }
-    .unsure-btn {
-      width: 100%;
-      margin-top: 10px;
-      border: 1px solid var(--line);
-      background: transparent;
-      color: var(--ink);
-      font-family: "Playfair Display", Georgia, serif;
-      font-size: 15px;
-      font-style: italic;
-      padding: 12px 10px;
+      padding: 12px 8px;
+      border: 1px solid #c4b48a;
+      background: #ebe3d2;
+      color: #16120e;
       cursor: pointer;
     }
-    .unsure-btn.selected {
-      border-color: var(--brass);
-      background: var(--field);
-      box-shadow: inset 0 0 0 1px var(--gold);
+    .tab.on {
+      background: #16120e;
+      color: var(--ivory);
+      border-color: #16120e;
     }
-    .check {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 18px;
-      height: 18px;
-      background: var(--ink);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 2;
-    }
-    .icon-card.selected .check { display: flex; }
-    .check svg { width: 11px; height: 11px; stroke: #fff; stroke-width: 3; fill: none; }
-    .help {
-      font-size: 15px;
-      font-style: italic;
-      color: var(--muted);
-      margin: 0 0 14px;
-    }
-    .help a { color: var(--brass); }
-    .virtual-only { display: none; }
-    .virtual-only.show { display: block; }
-    .ref-photo {
+    .frame-wrap { background: #fff; min-height: 1400px; }
+    .frame-wrap[hidden] { display: none !important; }
+    iframe {
+      display: block;
       width: 100%;
-      max-height: 280px;
-      object-fit: cover;
-      object-position: top;
-      border: 1px solid var(--line);
-      margin: 8px 0 14px;
-      background: var(--field);
-    }
-    .upload {
-      border: 1px dashed var(--brass);
-      padding: 28px 16px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 16px;
-      cursor: pointer;
-      background: var(--field);
-    }
-    .upload.has-file {
-      border-style: solid;
-      border-color: var(--ok);
-      color: var(--ok);
-      font-weight: 700;
-    }
-    .upload input { display: none; }
-    .consent {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      font-family: Lato, "Helvetica Neue", sans-serif;
-      font-size: 12px;
-      color: var(--body);
-      line-height: 1.45;
-    }
-    .consent input { margin-top: 3px; flex-shrink: 0; }
-    .sticky {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(18, 12, 8, 0.94);
-      border-top: 1px solid rgba(196,163,90,0.45);
-      padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
-    }
-    .sticky .inner { max-width: 520px; margin: 0 auto; }
-    button.submit {
-      width: 100%;
+      min-height: 2200px;
       border: 0;
-      background: var(--ink);
-      color: #f4efe3;
-      font-family: "Playfair Display", Georgia, serif;
-      font-size: 17px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      padding: 15px 28px;
-      cursor: pointer;
-      clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 14px 100%, 0 50%);
-    }
-    button.submit:disabled { opacity: 0.55; cursor: wait; }
-    #nextBtn { margin-top: 10px; }
-    #nextBtn { display: none; }
-    .toast {
-      position: fixed;
-      top: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--flag);
-      color: #fff;
-      padding: 12px 18px;
-      font-size: 14px;
-      font-weight: 700;
-      z-index: 50;
-      max-width: 90%;
-      text-align: center;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      background: #fff;
     }
     .conduct {
       text-align: center;
-      font-family: Cinzel, serif;
-      font-size: 10px;
-      letter-spacing: 0.34em;
-      text-transform: uppercase;
-      color: #d4c4a0;
-      padding: 10px 16px 36px;
-      margin: 0;
+      color: #c4b48a;
+      font-style: italic;
+      padding: 0 16px 40px;
     }
     footer {
       text-align: center;
-      font-family: Cinzel, serif;
-      font-size: 9px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #c4a35a;
-      padding: 10px 0 0;
-    }
-    @media (max-width: 420px) {
-      .parchment { padding: 24px 16px 22px; --notch: 12px; }
+      color: #c4b48a;
+      font-size: 13px;
+      padding-bottom: 28px;
     }
   </style>
 </head>
@@ -493,919 +160,55 @@
         <circle cx="60" cy="7" r="1.4" fill="#c4a35a"/>
       </svg>
       <h1>Finish your profile for Kyle</h1>
-      <p class="sub" id="headerSub">You already have a time. Use the same name, email, and phone you booked with so this updates your file — not a new one.</p>
+      <p class="sub">Use the same name, email, and phone already on the contact so Elite updates that file — not a new one.</p>
     </div>
   </header>
-
   <main>
     <div class="wrap">
-    <form id="intake" class="parchment" novalidate>
-      <div class="monogram">
-        <img src="logo-black.png" alt="Alpha Gentlemen Suits">
+      <div class="parchment">
+        <div class="monogram">
+          <img src="logo-black.png" alt="Alpha Gentlemen Suits">
+        </div>
+        <div class="tabs">
+          <button type="button" class="tab on" id="tabIn" data-form="in">In person</button>
+          <button type="button" class="tab" id="tabVirt" data-form="virt">Virtual</button>
+        </div>
+        <div class="frame-wrap" id="wrapIn">
+          <iframe
+            src="https://api.leadconnectorhq.com/widget/form/GbqOqmv0GWcaxFVfWXH2"
+            id="form-in"
+            title="In-person consultation profile"
+            data-layout-iframe-id="form-in"
+            data-form-id="GbqOqmv0GWcaxFVfWXH2"></iframe>
+        </div>
+        <div class="frame-wrap" id="wrapVirt" hidden>
+          <iframe
+            src="https://api.leadconnectorhq.com/widget/form/p47RCE4b9VqsxG4dqDdE"
+            id="form-virt"
+            title="Virtual consultation profile"
+            data-layout-iframe-id="form-virt"
+            data-form-id="p47RCE4b9VqsxG4dqDdE"></iframe>
+        </div>
       </div>
-      <section class="section" id="step1">
-        <h2>About you</h2>
-        <p class="lede">So we can reach you</p>
-        <div class="row-2">
-          <label class="field"><span>First name <i class="req">*</i></span>
-            <input type="text" name="firstName" autocomplete="given-name" placeholder="First" required></label>
-          <label class="field"><span>Last name <i class="req">*</i></span>
-            <input type="text" name="lastName" autocomplete="family-name" placeholder="Last" required></label>
-        </div>
-        <label class="field"><span>Phone <i class="req">*</i></span>
-          <div class="phone-row">
-            <select name="phoneCountry" id="phoneCountry" aria-label="Country code" required></select>
-            <input type="tel" name="phone" autocomplete="tel" inputmode="tel" placeholder="(813) 555-0142" required>
-          </div></label>
-        <label class="field"><span>Email <i class="req">*</i></span>
-          <input type="email" name="email" autocomplete="email" placeholder="you@email.com" required></label>
-        </section>
-
-      <div id="step2">
-      <section class="section">
-        <h2>Your visit</h2>
-        <p class="lede">Where you’re coming from</p>
-        <div class="row-2">
-          <label class="field"><span>City <i class="req">*</i></span>
-            <input type="text" name="city" autocomplete="address-level2" required></label>
-          <label class="field"><span>State <i class="req">*</i></span>
-            <select name="state" id="stateSelect" autocomplete="address-level1" required>
-              <option value="">Select</option>
-            </select></label>
-        </div>
-        <p class="help" style="margin-top:4px;">If you’re in the Tampa area, would you like to come in person or meet on video?</p>
-        <div class="choice-grid" data-field="consultType">
-          <div class="choice selected" data-value="In Person">In person</div>
-          <div class="choice" data-value="Virtual">Virtual</div>
-        </div>
-        <input type="hidden" name="consultType" value="In Person">
-      </section>
-
-      <section class="section">
-        <h2>What you’re building</h2>
-        <p class="lede">Occasion, timing, and range</p>
-        <label class="field"><span>Tell us about the occasion, event date (if you have one), and what you’re looking to build. <i class="req">*</i></span>
-          <textarea name="occasion" required></textarea></label>
-        <label class="field"><span>Are you looking to build: <i class="req">*</i></span>
-          <select name="buildType" required>
-            <option value="">Select</option>
-            <option>A single suit</option>
-            <option>Multiple suits</option>
-            <option>Full wardrobe upgrade</option>
-            <option>Ongoing seasonal relationship</option>
-          </select></label>
-        <label class="field"><span>What climate will this suit primarily be worn in? <i class="req">*</i></span>
-          <select name="climate" required>
-            <option value="">Select</option>
-            <option>Warm / Tropical</option>
-            <option>Moderate</option>
-            <option>Cold</option>
-            <option>Mixed travel</option>
-          </select></label>
-        <label class="field"><span>Have you previously purchased a custom suit? <i class="req">*</i></span>
-          <select name="priorSuit" required>
-            <option value="">Select</option>
-            <option>No – First time</option>
-            <option>Yes – Once</option>
-            <option>Yes – Multiple</option>
-          </select></label>
-        <label class="field"><span>When do you need your suit(s) completed by? <i class="req">*</i></span>
-          <select name="timeline" required>
-            <option value="">Select</option>
-            <option>Under 2 Months (Expedited)</option>
-            <option>2-3 Months</option>
-            <option>4-6 Months</option>
-            <option>8+ Months</option>
-          </select></label>
-        <label class="field"><span>What is your Suit Investment Range? <i class="req">*</i></span>
-          <select name="budget" required>
-            <option value="">Select</option>
-            <option>$900 - $1,500</option>
-            <option>$1,500 - $3,000</option>
-            <option>$3,000 - $5,500</option>
-            <option>$5,500 - $10,000</option>
-            <option>$10,000 - $30,000</option>
-          </select></label>
-      </section>
-
-      <section class="section">
-        <h2>Your build</h2>
-        <p class="lede">Closest match is enough</p>
-        <p class="help">These help Kyle pull the right cut before you sit down. If you’re not sure, tap that — it is not a test.</p>
-        <div id="selectors"></div>
-        <div class="virtual-only" id="measureNote">
-          <p class="help">For a virtual visit, measurements can be taken by a local tailor (often free or a small fee) or at home with a soft tape. You can print the <a href="https://assets.cdn.filesafe.space/ZeElvACzUObQ1MOXj6kw/media/69cd74a92a8b885c04e983d0.pdf" target="_blank" rel="noopener">measurement PDF</a> if someone else is measuring you. Height and weight below are enough to get you booked — full measurements can be finished before the call.</p>
-        </div>
-        <div class="row-2">
-          <label class="field"><span>Height <i class="req">*</i></span>
-            <input type="text" name="height" placeholder="e.g. 5'11&quot;" required></label>
-          <label class="field"><span>Weight <i class="req">*</i></span>
-            <input type="text" name="weight" placeholder="e.g. 185 lbs" required></label>
-        </div>
-      </section>
-
-      <section class="section">
-        <h2>Photo</h2>
-        <p class="lede">Full body, standing straight, in fitted clothes</p>
-        <p class="help">Example reference photo:</p>
-        <img class="ref-photo" alt="Example reference photo" src="https://assets.cdn.filesafe.space/ZeElvACzUObQ1MOXj6kw/media/69e3b0442c135a8c831a8e51.png">
-        <label class="upload" id="uploadBox">
-          <input type="file" name="photo" accept="image/*" required>
-          <span id="uploadLabel">Tap to take or upload a photo *</span>
-        </label>
-      </section>
-
-      <section class="section">
-        <h2>Photo use</h2>
-        <p class="lede" style="margin-bottom:12px;">So Kyle can prepare looks before you sit down</p>
-        <label class="consent">
-          <input type="checkbox" name="photoConsent" required>
-          <span>I give Alpha Gentlemen Suits permission to use the photos I upload to prepare my consultation, including computer-generated preview images of me in fabrics being considered. Those previews are for my appointment only and will not be posted or used in marketing unless I give separate written permission. I can ask for my photos and previews to be deleted at any time.</span>
-        </label>
-      </section>
-
-      <section class="section">
-        <h2>Text updates</h2>
-        <p class="lede" style="margin-bottom:12px;">How we may reach you</p>
-        <label class="consent">
-          <input type="checkbox" name="smsConsent" required>
-          <span>By checking this box, I consent to receive text messages from Alpha Gentlemen Suits (Ploucher Enterprise LLC) about consultation scheduling, appointment reminders, order status updates, production and fulfillment notifications, and deposit requests at the phone number provided. Message frequency varies. Message &amp; data rates may apply. Text HELP for assistance, reply STOP to opt out.</span>
-        </label>
-      </section>
-      </div>
-    </form>
     </div>
   </main>
   <p class="conduct">Clothing changes conduct</p>
-
-  <div class="sticky">
-    <div class="inner">
-      <button class="submit" type="submit" form="intake" id="submitBtn">Send my profile</button>
-      <div id="cf-turnstile" style="min-height:0;height:0;overflow:hidden"></div>
-      <iframe name="ghl_hidden" title="" style="display:none"></iframe>
-      <footer>Alpha Gentlemen Suits · Tampa</footer>
-    </div>
-  </div>
-
+  <footer>Alpha Gentlemen Suits · Tampa</footer>
+  <script src="https://link.msgsndr.com/js/form_embed.js"></script>
   <script>
-    const VISUAL = "visuals/";
-    const LOCATION_ID = "ZeElvACzUObQ1MOXj6kw";
-    const SELECTORS = [
-      {
-        field: "bodyType",
-        label: "What's your body type?",
-        hint: "The overall outline — shoulders vs waist vs hips. Pick the closest.",
-        cols: 5,
-        options: [
-          ["Trapezoid", "body-trapezoid.jpg", "Athletic V: shoulders clearly wider than a trim waist"],
-          ["Rectangle", "body-rectangle.jpg", "Straight up and down — shoulders, waist, and hips similar"],
-          ["Oval", "body-oval.jpg", "Fuller through the middle, rounder torso"],
-          ["Triangle", "body-triangle.jpg", "Narrower shoulders, wider hips"],
-          ["Inverted Triangle", "body-inverted-triangle.jpg", "Very broad shoulders, much narrower waist"]
-        ]
-      },
-      {
-        field: "chestBack",
-        label: "Chest and back posture",
-        hint: "How you stand from the side, in a jacket.",
-        cols: 3,
-        options: [
-          ["Forward Chest", "chest-forward.jpg", "Chest sits a bit forward"],
-          ["Normal Chest", "chest-normal.jpg", "Straight, easy posture"],
-          ["Round Back", "chest-round-back.jpg", "Upper back a bit rounded"]
-        ]
-      },
-      {
-        field: "stomach",
-        label: "Stomach profile",
-        hint: "From the side, as you are today.",
-        cols: 4,
-        options: [
-          ["Flat", "stomach-flat.jpg", "Little to no belly"],
-          ["Forward Stomach", "stomach-forward.jpg", "A slight push at the front"],
-          ["Stout", "stomach-stout.jpg", "A rounder midsection"],
-          ["Large", "stomach-large.jpg", "A fuller stomach"]
-        ]
-      },
-      {
-        field: "shoulder",
-        label: "Shoulder type",
-        hint: "The line from neck out to the arm.",
-        cols: 3,
-        options: [
-          ["Drop", "shoulder-drop.jpg", "Shoulders slope down"],
-          ["Normal", "shoulder-normal.jpg", "A natural, even line"],
-          ["Square", "shoulder-square.jpg", "High, almost straight across"]
-        ]
-      }
-    ];
-    const GHL_LEAD_FORM = "XdiyW4lBhphT58spZ289";
-    const GHL_CONSULT_FORM = {
-      "In Person": "GbqOqmv0GWcaxFVfWXH2",
-      "Virtual": "p47RCE4b9VqsxG4dqDdE"
-    };
-    const BOOKING = {
-      "In Person": "https://calendar.app.google/Z2xLAsYKyHGJJKtf9",
-      "Virtual": "https://calendar.app.google/Z2xLAsYKyHGJJKtf9"
-    };
-    const SHEET_HOOK = "https://script.google.com/macros/s/AKfycbwC-PCmoaIsRbwOBePKzPLwFBf0_RkA9khBy9wVkfoLnhVroOBOwqeyKE0x7rJw5dvx/exec";
-    const SHEET_TOKEN = "ags-intake-v1";
-    let turnstileToken = "";
-    const COUNTRY_CODES = [
-      ["US +1", "1"], ["CA +1", "1"], ["GB +44", "44"], ["AU +61", "61"],
-      ["AE +971", "971"], ["AR +54", "54"], ["AT +43", "43"], ["BE +32", "32"],
-      ["BH +973", "973"], ["BR +55", "55"], ["BS +1242", "1242"], ["CH +41", "41"],
-      ["CL +56", "56"], ["CN +86", "86"], ["CO +57", "57"], ["CR +506", "506"],
-      ["CZ +420", "420"], ["DE +49", "49"], ["DK +45", "45"], ["DO +1809", "1809"],
-      ["ES +34", "34"], ["FI +358", "358"], ["FR +33", "33"], ["GR +30", "30"],
-      ["HK +852", "852"], ["IE +353", "353"], ["IL +972", "972"], ["IN +91", "91"],
-      ["IT +39", "39"], ["JM +1876", "1876"], ["JP +81", "81"], ["KR +82", "82"],
-      ["KW +965", "965"], ["KY +1345", "1345"], ["MX +52", "52"], ["MY +60", "60"],
-      ["NG +234", "234"], ["NL +31", "31"], ["NO +47", "47"], ["NZ +64", "64"],
-      ["PA +507", "507"], ["PE +51", "51"], ["PH +63", "63"], ["PL +48", "48"],
-      ["PT +351", "351"], ["QA +974", "974"], ["SA +966", "966"], ["SE +46", "46"],
-      ["SG +65", "65"], ["TH +66", "66"], ["TR +90", "90"], ["TT +1868", "1868"],
-      ["TW +886", "886"], ["ZA +27", "27"]
-    ];
-    const STATES = [
-      "AL","AK","AZ","AR","CA","CO","CT","DC","DE","FL","GA","HI","ID","IL","IN",
-      "IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH",
-      "NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT",
-      "VT","VA","WA","WV","WI","WY"
-    ];
-
-    (function fillPickers() {
-      const codeSel = document.getElementById("phoneCountry");
-      COUNTRY_CODES.forEach(function (row, i) {
-        const opt = document.createElement("option");
-        opt.value = row[1];
-        opt.textContent = row[0];
-        if (i === 0) opt.selected = true;
-        codeSel.appendChild(opt);
-      });
-      const stateSel = document.getElementById("stateSelect");
-      STATES.forEach(function (ab) {
-        const opt = document.createElement("option");
-        opt.value = ab;
-        opt.textContent = ab;
-        stateSel.appendChild(opt);
-      });
-    })();
-
-    const FACE_SHAPES = ["Oval", "Round", "Square", "Heart", "Oblong", "Diamond", "Triangle"];
-    let faceLandmarker = null;
-    let faceLandmarkerLoading = null;
-
-    function dist(a, b) {
-      return Math.hypot(a.x - b.x, a.y - b.y);
+    const tabIn = document.getElementById("tabIn");
+    const tabVirt = document.getElementById("tabVirt");
+    const wrapIn = document.getElementById("wrapIn");
+    const wrapVirt = document.getElementById("wrapVirt");
+    function show(which) {
+      const inPerson = which === "in";
+      tabIn.classList.toggle("on", inPerson);
+      tabVirt.classList.toggle("on", !inPerson);
+      wrapIn.hidden = !inPerson;
+      wrapVirt.hidden = inPerson;
     }
-
-    function classifyFaceShape(pts) {
-      const length = dist(pts[10], pts[152]);
-      const cheek = dist(pts[234], pts[454]);
-      const jaw = dist(pts[172], pts[397]);
-      const forehead = dist(pts[54], pts[284]);
-      if (!cheek) return "Oval";
-      const lw = length / cheek;
-      const jw = jaw / cheek;
-      const fw = forehead / cheek;
-      if (lw >= 1.58) return "Oblong";
-      if (jw > fw * 1.14 && jw > 0.9) return "Triangle";
-      if (fw > jw * 1.14 && jw < 0.9) return "Heart";
-      if (fw < 0.86 && jw < 0.86 && lw >= 1.2) return "Diamond";
-      if (lw <= 1.16) return jw >= 0.9 && fw >= 0.88 ? "Square" : "Round";
-      if (lw <= 1.28 && jw >= 0.92 && fw >= 0.9) return "Square";
-      return "Oval";
-    }
-
-    async function getFaceLandmarker() {
-      if (faceLandmarker) return faceLandmarker;
-      if (faceLandmarkerLoading) return faceLandmarkerLoading;
-      faceLandmarkerLoading = (async function () {
-        const vision = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.17/+esm");
-        const fileset = await vision.FilesetResolver.forVisionTasks(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.17/wasm"
-        );
-        const opts = {
-          baseOptions: {
-            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
-          },
-          runningMode: "IMAGE",
-          numFaces: 1
-        };
-        try {
-          opts.baseOptions.delegate = "GPU";
-          faceLandmarker = await vision.FaceLandmarker.createFromOptions(fileset, opts);
-        } catch (_) {
-          opts.baseOptions.delegate = "CPU";
-          faceLandmarker = await vision.FaceLandmarker.createFromOptions(fileset, opts);
-        }
-        return faceLandmarker;
-      })();
-      try {
-        return await faceLandmarkerLoading;
-      } catch (err) {
-        faceLandmarkerLoading = null;
-        throw err;
-      }
-    }
-
-    async function readFaceFile(file) {
-      const resultEl = document.getElementById("faceResult");
-      const preview = document.getElementById("facePreview");
-      const hidden = document.querySelector('input[name="faceShape"]');
-      const chips = document.getElementById("faceOverride");
-      resultEl.hidden = false;
-      chips.hidden = false;
-      resultEl.textContent = "Reading your face…";
-      try {
-        const bitmap = await createImageBitmap(file);
-        const canvas = document.createElement("canvas");
-        const max = 1280;
-        let w = bitmap.width, h = bitmap.height;
-        if (Math.max(w, h) > max) {
-          const scale = max / Math.max(w, h);
-          w = Math.round(w * scale);
-          h = Math.round(h * scale);
-        }
-        canvas.width = w;
-        canvas.height = h;
-        canvas.getContext("2d").drawImage(bitmap, 0, 0, w, h);
-        preview.src = canvas.toDataURL("image/jpeg", 0.82);
-        preview.hidden = false;
-        const landmarker = await getFaceLandmarker();
-        const detected = landmarker.detect(canvas);
-        const pts = detected && detected.faceLandmarks && detected.faceLandmarks[0];
-        if (!pts) {
-          resultEl.textContent = "We couldn’t read a face. Try again straight-on and closer, or pick below.";
-          return;
-        }
-        const shape = classifyFaceShape(pts);
-        hidden.value = shape;
-        resultEl.innerHTML = "Closest match: <strong>" + shape + "</strong>. Kyle will confirm — change it below if that’s off.";
-        chips.hidden = false;
-        chips.querySelectorAll(".face-chip").forEach(function (chip) {
-          chip.classList.toggle("selected", chip.dataset.value === shape);
-        });
-        const unsure = document.getElementById("faceUnsure");
-        if (unsure) unsure.classList.remove("selected");
-      } catch (_) {
-        resultEl.textContent = "We couldn’t read that photo. Pick the closest shape below, or try another picture.";
-        chips.hidden = false;
-      }
-    }
-
-    function buildFaceBlock() {
-      const wrap = document.createElement("div");
-      wrap.style.marginBottom = "22px";
-      wrap.innerHTML =
-        '<div class="sel-label">What\'s your face shape? <i class="req">*</i></div>' +
-        '<div class="help">Take a straight-on photo of your face. We’ll read the shape from it — you can change it if it’s off.</div>' +
-        '<label class="upload" id="faceUploadBox"><input type="file" name="facePhoto" accept="image/*" capture="user"><span id="faceUploadLabel">Tap to take or upload a face photo</span></label>' +
-        '<img class="face-preview" id="facePreview" alt="Your face" hidden>' +
-        '<p class="face-result" id="faceResult" hidden></p>' +
-        '<div class="face-chips" id="faceOverride" hidden></div>' +
-        '<button type="button" class="unsure-btn" id="faceUnsure">I\'m not sure — Kyle will confirm</button>';
-      const hidden = document.createElement("input");
-      hidden.type = "hidden";
-      hidden.name = "faceShape";
-      hidden.required = true;
-      wrap.appendChild(hidden);
-      const chips = wrap.querySelector("#faceOverride");
-      FACE_SHAPES.forEach(function (name) {
-        const chip = document.createElement("button");
-        chip.type = "button";
-        chip.className = "face-chip";
-        chip.dataset.value = name;
-        chip.textContent = name;
-        chip.addEventListener("click", function () {
-          chips.querySelectorAll(".face-chip").forEach(function (c) { c.classList.remove("selected"); });
-          wrap.querySelector("#faceUnsure").classList.remove("selected");
-          chip.classList.add("selected");
-          hidden.value = name;
-          const resultEl = wrap.querySelector("#faceResult");
-          resultEl.hidden = false;
-          resultEl.innerHTML = "Using <strong>" + name + "</strong>.";
-        });
-        chips.appendChild(chip);
-      });
-      wrap.querySelector("#faceUnsure").addEventListener("click", function () {
-        chips.querySelectorAll(".face-chip").forEach(function (c) { c.classList.remove("selected"); });
-        wrap.querySelector("#faceUnsure").classList.add("selected");
-        hidden.value = "I'm not sure";
-        const resultEl = wrap.querySelector("#faceResult");
-        resultEl.hidden = false;
-        resultEl.textContent = "We’ll confirm your face shape when you sit down.";
-      });
-      const input = wrap.querySelector('input[name="facePhoto"]');
-      const label = wrap.querySelector("#faceUploadLabel");
-      const box = wrap.querySelector("#faceUploadBox");
-      input.addEventListener("change", function () {
-        const file = input.files && input.files[0];
-        if (!file) {
-          box.classList.remove("has-file");
-          label.textContent = "Tap to take or upload a face photo";
-          return;
-        }
-        box.classList.add("has-file");
-        label.textContent = "Photo added — reading face…";
-        readFaceFile(file).then(function () {
-          label.textContent = "Tap to retake";
-        });
-      });
-      return wrap;
-    }
-
-    const checkSvg = '<div class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>';
-    const selectorsEl = document.getElementById("selectors");
-
-    SELECTORS.forEach((group) => {
-      const wrap = document.createElement("div");
-      wrap.style.marginBottom = "22px";
-      wrap.innerHTML =
-        '<div class="sel-label">' + group.label + ' <i class="req">*</i></div>' +
-        '<div class="help">' + group.hint + "</div>";
-      const grid = document.createElement("div");
-      grid.className = "icon-grid cols-" + group.cols;
-      grid.dataset.field = group.field;
-      const hidden = document.createElement("input");
-      hidden.type = "hidden";
-      hidden.name = group.field;
-      hidden.required = true;
-      const unsure = document.createElement("button");
-      unsure.type = "button";
-      unsure.className = "unsure-btn";
-      unsure.textContent = "I'm not sure — Kyle will confirm";
-      group.options.forEach(([name, file, blurb]) => {
-        const card = document.createElement("div");
-        card.className = "icon-card";
-        card.dataset.value = name;
-        card.innerHTML = checkSvg + '<img alt="' + name + '" src="' + VISUAL + file + '"><div class="name">' + name + "</div><div class=\"blurb\">" + blurb + "</div>";
-        card.addEventListener("click", () => {
-          grid.querySelectorAll(".icon-card").forEach((c) => c.classList.remove("selected"));
-          unsure.classList.remove("selected");
-          card.classList.add("selected");
-          hidden.value = name;
-        });
-        grid.appendChild(card);
-      });
-      unsure.addEventListener("click", () => {
-        grid.querySelectorAll(".icon-card").forEach((c) => c.classList.remove("selected"));
-        unsure.classList.add("selected");
-        hidden.value = "I'm not sure";
-      });
-      wrap.appendChild(grid);
-      wrap.appendChild(unsure);
-      wrap.appendChild(hidden);
-      selectorsEl.appendChild(wrap);
-    });
-
-    const consultHidden = document.querySelector('input[name="consultType"]');
-    const measureNote = document.getElementById("measureNote");
-    document.querySelectorAll('[data-field="consultType"] .choice').forEach((btn) => {
-      btn.addEventListener("click", () => {
-        btn.parentElement.querySelectorAll(".choice").forEach((c) => c.classList.remove("selected"));
-        btn.classList.add("selected");
-        consultHidden.value = btn.dataset.value;
-        measureNote.classList.toggle("show", btn.dataset.value === "Virtual");
-      });
-    });
-
-    const uploadBox = document.getElementById("uploadBox");
-    const uploadLabel = document.getElementById("uploadLabel");
-    const photoInput = uploadBox.querySelector('input[name="photo"]');
-    photoInput.addEventListener("change", () => {
-      const file = photoInput.files && photoInput.files[0];
-      if (file) {
-        uploadBox.classList.add("has-file");
-        uploadLabel.textContent = file.name;
-      } else {
-        uploadBox.classList.remove("has-file");
-        uploadLabel.textContent = "Tap to take or upload a photo *";
-      }
-    });
-
-    function toast(msg) {
-      const existing = document.querySelector(".toast");
-      if (existing) existing.remove();
-      const el = document.createElement("div");
-      el.className = "toast";
-      el.textContent = msg;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 3500);
-    }
-
-    function missingVisual() {
-      const miss = SELECTORS.filter((g) => !document.querySelector('input[name="' + g.field + '"]').value)
-        .map((g) => g.label.replace(/^What's your /i, "").replace(/\?$/, ""));
-      return miss;
-    }
-
-    function shrinkPhoto(file, maxEdge, quality) {
-      return new Promise((resolve) => {
-        if (!file || !file.type || file.type.indexOf("image/") !== 0) return resolve(file);
-        const img = new Image();
-        const url = URL.createObjectURL(file);
-        img.onload = () => {
-          const max = maxEdge || 1200;
-          let w = img.width, h = img.height;
-          if (Math.max(w, h) > max) {
-            const scale = max / Math.max(w, h);
-            w = Math.round(w * scale);
-            h = Math.round(h * scale);
-          }
-          const canvas = document.createElement("canvas");
-          canvas.width = w;
-          canvas.height = h;
-          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-          canvas.toBlob((blob) => {
-            URL.revokeObjectURL(url);
-            resolve(blob ? new File([blob], "client-photo.jpg", { type: "image/jpeg" }) : file);
-          }, "image/jpeg", quality == null ? 0.72 : quality);
-        };
-        img.onerror = () => {
-          URL.revokeObjectURL(url);
-          resolve(file);
-        };
-        img.src = url;
-      });
-    }
-
-    async function shrinkPhotoForSheet(file) {
-      let out = await shrinkPhoto(file, 900, 0.65);
-      if (out && out.size > 35000) out = await shrinkPhoto(out, 700, 0.5);
-      if (out && out.size > 35000) out = await shrinkPhoto(out, 520, 0.42);
-      return out;
-    }
-
-    function composePhone(form) {
-      const raw = (form.phone.value || "").trim();
-      if (raw.indexOf("+") === 0) return "+" + raw.replace(/\D/g, "");
-      const code = (form.phoneCountry.value || "1").replace(/\D/g, "") || "1";
-      let local = raw.replace(/\D/g, "");
-      if (code === "1" && local.length === 11 && local.charAt(0) === "1") local = local.slice(1);
-      return "+" + code + local;
-    }
-
-    async function emailIntake(form, photo) {
-      const fd = new FormData(form);
-      fd.set("phone", composePhone(form));
-      if (photo) fd.set("photo", photo, photo.name);
-      fd.append("_subject", "AGS intake — " + fd.get("firstName") + " " + fd.get("lastName"));
-      fd.append("_template", "table");
-      fd.append("_captcha", "false");
-      const res = await fetch("https://formsubmit.co/ajax/owner@alphagentlemensuits.com", {
-        method: "POST",
-        body: fd
-      });
-      return res.ok;
-    }
-
-    function fieldValue(form, name) {
-      const el = form.elements[name];
-      if (!el) return "";
-      if (el.type === "checkbox") return el.checked ? "on" : "";
-      return String(el.value || "").trim();
-    }
-
-    function values(form) {
-      return {
-        firstName: fieldValue(form, "firstName"),
-        lastName: fieldValue(form, "lastName"),
-        phone: composePhone(form),
-        email: fieldValue(form, "email"),
-        city: fieldValue(form, "city"),
-        state: fieldValue(form, "state"),
-        consultType: fieldValue(form, "consultType"),
-        occasion: fieldValue(form, "occasion"),
-        buildType: fieldValue(form, "buildType"),
-        climate: fieldValue(form, "climate"),
-        priorSuit: fieldValue(form, "priorSuit"),
-        timeline: fieldValue(form, "timeline"),
-        budget: fieldValue(form, "budget"),
-        bodyType: fieldValue(form, "bodyType"),
-        faceShape: fieldValue(form, "faceShape"),
-        chestBack: fieldValue(form, "chestBack"),
-        stomach: fieldValue(form, "stomach"),
-        shoulder: fieldValue(form, "shoulder"),
-        height: fieldValue(form, "height"),
-        weight: fieldValue(form, "weight"),
-        smsConsent: fieldValue(form, "smsConsent")
-      };
-    }
-
-    function summary(d, photoName) {
-      return [
-        "AGS consultation intake",
-        d.firstName + " " + d.lastName,
-        d.phone,
-        d.email,
-        d.city + ", " + d.state,
-        "Consult: " + d.consultType,
-        "Occasion: " + d.occasion,
-        "Build: " + d.buildType,
-        "Climate: " + d.climate,
-        "Prior custom: " + d.priorSuit,
-        "Need by: " + d.timeline,
-        "Range: " + d.budget,
-        "Body: " + d.bodyType,
-        "Source: Setter",
-        "Chest/back: " + d.chestBack,
-        "Stomach: " + d.stomach,
-        "Shoulder: " + d.shoulder,
-        "Height: " + d.height,
-        "Weight: " + d.weight,
-        "SMS consent: " + (d.smsConsent ? "yes" : "no"),
-        "Photo: " + (photoName || "attached")
-      ].join("\n");
-    }
-
-    function intakeId() {
-      try {
-        let id = sessionStorage.getItem("agsIntakeId");
-        if (!id) {
-          id = (crypto.randomUUID && crypto.randomUUID()) || ("t" + Date.now() + Math.random().toString(16).slice(2));
-          sessionStorage.setItem("agsIntakeId", id);
-        }
-        return id;
-      } catch (_) {
-        return "t" + Date.now();
-      }
-    }
-
-    function bookingUrl(consult, d) {
-      return BOOKING[consult] || BOOKING["In Person"];
-    }
-
-    function ghlBody(fields, fileField, file) {
-      const payload = Object.assign({
-        formId: fields.formId,
-        location_id: LOCATION_ID,
-        Timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        eventData: { source: "ags-setter-form" }
-      }, fields);
-      if (turnstileToken) payload.turnstileNonInteractiveToken = turnstileToken;
-      const body = new FormData();
-      body.set("formData", JSON.stringify(payload));
-      body.append("locationId", LOCATION_ID);
-      body.append("formId", fields.formId);
-      if (turnstileToken) {
-        body.append("challengeToken", turnstileToken);
-        body.append("turnstileNonInteractiveToken", turnstileToken);
-      }
-      if (fileField && file) body.append(fileField, file);
-      return body;
-    }
-
-    async function ghlPost(formId, fields, fileField, file) {
-      fields.formId = formId;
-      const body = ghlBody(fields, fileField, file);
-      const urls = [
-        "https://api.msgsndr.com/forms/submit",
-        "https://backend.leadconnectorhq.com/forms/submit?formId=" + encodeURIComponent(formId) + "&locationId=" + encodeURIComponent(LOCATION_ID)
-      ];
-      for (let i = 0; i < urls.length; i++) {
-        try {
-          const res = await fetch(urls[i], { method: "POST", body: body, mode: "cors" });
-          if (res.ok) return true;
-        } catch (_) { /* try next */ }
-      }
-      return false;
-    }
-
-    async function fileToBase64(file) {
-      if (!file) return "";
-      const buf = await file.arrayBuffer();
-      const bytes = new Uint8Array(buf);
-      let bin = "";
-      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-      return btoa(bin);
-    }
-
-    async function postSheet(d, photo, bookLink, stage) {
-      if (!SHEET_HOOK || SHEET_HOOK.indexOf("AGS_INTAKE_HOOK") !== -1) return false;
-      const payload = {
-        token: SHEET_TOKEN,
-        stage: stage || "lead",
-        intakeId: intakeId(),
-        submittedAt: new Date().toISOString(),
-        firstName: d.firstName,
-        lastName: d.lastName,
-        phone: d.phone,
-        email: d.email,
-        city: d.city,
-        state: d.state,
-        consultType: d.consultType,
-        occasion: d.occasion,
-        buildType: d.buildType,
-        climate: d.climate,
-        priorSuit: d.priorSuit,
-        timeline: d.timeline,
-        budget: d.budget,
-        bodyType: d.bodyType,
-        faceShape: "",
-        source: "Setter",
-        chestBack: d.chestBack,
-        stomach: d.stomach,
-        shoulder: d.shoulder,
-        height: d.height,
-        weight: d.weight,
-        smsConsent: d.smsConsent === true || d.smsConsent === "yes" || d.smsConsent === "on" ? "yes" : (d.smsConsent ? "yes" : ""),
-        bookingLink: bookLink,
-        appointmentTime: d.appointmentTime || ""
-      };
-      if (photo) {
-        payload.photoMime = photo.type || "image/jpeg";
-        payload.photoBase64 = await fileToBase64(photo);
-      }
-      const body = JSON.stringify(payload);
-      if (!photo) {
-        try {
-          if (navigator.sendBeacon) {
-            const blob = new Blob([body], { type: "text/plain" });
-            if (navigator.sendBeacon(SHEET_HOOK, blob)) return true;
-          }
-        } catch (_) { /* fall through to fetch */ }
-      }
-      try {
-        await fetch(SHEET_HOOK, {
-          method: "POST",
-          mode: "no-cors",
-          keepalive: !photo,
-          headers: { "Content-Type": "text/plain" },
-          body: body
-        });
-        return true;
-      } catch (_) {
-        return false;
-      }
-    }
-
-    async function emailLead(d) {
-      const fd = new FormData();
-      fd.append("firstName", d.firstName);
-      fd.append("lastName", d.lastName);
-      fd.append("phone", d.phone);
-      fd.append("email", d.email);
-      fd.append("_subject", "AGS intake started — " + d.firstName + " " + d.lastName);
-      fd.append("_template", "table");
-      fd.append("_captcha", "false");
-      const res = await fetch("https://formsubmit.co/ajax/owner@alphagentlemensuits.com", {
-        method: "POST",
-        body: fd
-      });
-      return res.ok;
-    }
-
-    async function sendLeadOnly(d) {
-      await ghlPost(GHL_LEAD_FORM, {
-        first_name: d.firstName,
-        last_name: d.lastName,
-        phone: d.phone,
-        email: d.email
-      });
-    }
-
-    async function sendToCrm(d, photo) {
-      const consult = {
-        first_name: d.firstName,
-        last_name: d.lastName,
-        phone: d.phone,
-        email: d.email,
-        city: d.city,
-        state: d.state,
-        w6XeTJFmRRygOHAMw9Sr: d.consultType,
-        "1SHwIOLiytQnjBtYF157": d.occasion,
-        rIhzhn7VCXWS8SJLGYZj: d.buildType,
-        "6BAXFcBwCHmxTZ84culn": d.climate,
-        SWH0tWZ7nX59aTzuXi0I: d.priorSuit,
-        PdARjGB8Z2gFOGQxA3Bl: d.timeline,
-        "2I89TWT99DsTqtZ1k4nT": d.budget,
-        "21a5DROBB7bwBa6XPzvU": d.bodyType,
-        HWRK0IZ49frDiXz1Phhh: d.chestBack,
-        fNWr9FgJJQ0pSdelcqT2: d.stomach,
-        "0CzMGdS0ZC88fRMVR8OT": d.shoulder,
-        MIi4NuU7VgP8UUFnk80N: d.height,
-        APs2oq9F9pndy6yrraPT: d.weight,
-        source: "Setter"
-      };
-      if (d.smsConsent) consult.terms_and_conditions = "terms_and_conditions";
-      return ghlPost(GHL_CONSULT_FORM[d.consultType] || GHL_CONSULT_FORM["In Person"], consult, "Lx8SUPtcE89cBrUP5MZw", photo);
-    }
-
-    let step = 1;
-
-    function step1Values() {
-      const form = document.getElementById("intake");
-      return {
-        firstName: form.firstName.value.trim(),
-        lastName: form.lastName.value.trim(),
-        phone: composePhone(form),
-        email: form.email.value.trim()
-      };
-    }
-
-    function step1Valid() {
-      const form = document.getElementById("intake");
-      const names = ["firstName", "lastName", "phone", "email"];
-      for (let i = 0; i < names.length; i++) {
-        const el = form.elements[names[i]];
-        if (!el.checkValidity()) {
-          el.reportValidity();
-          return false;
-        }
-      }
-      return true;
-    }
-
-    function saveAndShowStep2() {
-      if (!step1Valid()) {
-        toast("Please fill in the highlighted fields.");
-        return;
-      }
-      const d = step1Values();
-      document.getElementById("step1").hidden = true;
-      document.getElementById("step2").hidden = false;
-      document.body.classList.add("is-step-2");
-      document.getElementById("headerSub").textContent =
-        "A few details so Kyle can pull the right options — then you’ll pick a time.";
-      window.scrollTo(0, 0);
-      step = 2;
-      sendLeadOnly(d).catch(function () {});
-      emailLead(d).catch(function () {});
-      postSheet(d, null, "", "lead").catch(function () {});
-    }
-
-    document.getElementById("intake").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (false) {
-        saveAndShowStep2();
-        return;
-      }
-      const form = e.target;
-      if (!form.checkValidity()) {
-        form.reportValidity();
-        toast("Please fill in the highlighted fields.");
-        return;
-      }
-      const visual = missingVisual();
-      if (visual.length) {
-        toast("Please select: " + visual.join(", "));
-        const firstEmpty = SELECTORS.find((g) => !document.querySelector('input[name="' + g.field + '"]').value);
-        const grid = document.querySelector('.icon-grid[data-field="' + firstEmpty.field + '"]');
-        if (grid) grid.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-      const d = values(form);
-      const consult = d.consultType;
-      const url = bookingUrl(consult, d);
-      const original = photoInput.files && photoInput.files[0];
-      const btn = document.getElementById("submitBtn");
-      btn.disabled = true;
-      btn.textContent = "Sending…";
-      let photo = original;
-      try {
-        if (original) photo = await shrinkPhoto(original, 1400, 0.78);
-      } catch (_) { photo = original; }
-      const text = summary(d, photo && photo.name);
-      try {
-        localStorage.setItem("ags-last-intake", text);
-        await navigator.clipboard.writeText(text);
-      } catch (_) { /* phone may block clipboard; booking still proceeds */ }
-      try { await postSheet(d, null, url, "details"); } catch (_) { /* answers still try below */ }
-      try {
-        const sheetPhoto = original ? await shrinkPhotoForSheet(original) : null;
-        if (sheetPhoto) await postSheet(d, sheetPhoto, url, "details");
-      } catch (_) { /* answers already sent */ }
-      let crmOk = false;
-      for (let i = 0; i < 3 && !crmOk; i++) {
-        try { crmOk = await sendToCrm(d, photo); } catch (_) { crmOk = false; }
-        if (!crmOk && window.turnstile) {
-          try { window.turnstile.reset(); } catch (_) { /* retry with existing token */ }
-          await new Promise(function (resolve) { setTimeout(resolve, 900); });
-        }
-      }
-      if (!crmOk) {
-        toast("Couldn't reach Elite. Tap Send again — your answers are saved.");
-        btn.disabled = false;
-        btn.textContent = "Send my profile";
-        return;
-      }
-      try { await emailIntake(form, photo); } catch (_) { /* CRM already wrote */ }
-      btn.textContent = "Sent.";
-      window.location.href = "setter-done.html";
-    });
-
-    window.addEventListener("load", function () {
-      if (!window.turnstile) return;
-      try {
-        window.turnstile.render("#cf-turnstile", {
-          sitekey: "0x4AAAAAACCpVlau-4k7cJ33",
-          size: "invisible",
-          callback: function (token) { turnstileToken = token; }
-        });
-      } catch (_) { /* continue */ }
-    });
+    tabIn.addEventListener("click", function () { show("in"); });
+    tabVirt.addEventListener("click", function () { show("virt"); });
   </script>
 </body>
 </html>
