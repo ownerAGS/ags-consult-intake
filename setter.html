@@ -1161,8 +1161,8 @@
       fields.formId = formId;
       const body = ghlBody(fields, fileField, file);
       const urls = [
-        "https://backend.leadconnectorhq.com/forms/submit?formId=" + encodeURIComponent(formId) + "&locationId=" + encodeURIComponent(LOCATION_ID),
-        "https://api.msgsndr.com/forms/submit"
+        "https://api.msgsndr.com/forms/submit",
+        "https://backend.leadconnectorhq.com/forms/submit?formId=" + encodeURIComponent(formId) + "&locationId=" + encodeURIComponent(LOCATION_ID)
       ];
       for (let i = 0; i < urls.length; i++) {
         try {
@@ -1170,12 +1170,7 @@
           if (res.ok) return true;
         } catch (_) { /* try next */ }
       }
-      try {
-        await fetch(urls[0], { method: "POST", body: body, mode: "no-cors" });
-        return true;
-      } catch (_) {
-        return false;
-      }
+      return false;
     }
 
     async function fileToBase64(file) {
@@ -1295,7 +1290,7 @@
         source: "Setter"
       };
       if (d.smsConsent) consult.terms_and_conditions = "terms_and_conditions";
-      await ghlPost(GHL_CONSULT_FORM[d.consultType] || GHL_CONSULT_FORM["In Person"], consult, "Lx8SUPtcE89cBrUP5MZw", photo);
+      return ghlPost(GHL_CONSULT_FORM[d.consultType] || GHL_CONSULT_FORM["In Person"], consult, "Lx8SUPtcE89cBrUP5MZw", photo);
     }
 
     let step = 1;
@@ -1382,8 +1377,21 @@
         const sheetPhoto = original ? await shrinkPhotoForSheet(original) : null;
         if (sheetPhoto) await postSheet(d, sheetPhoto, url, "details");
       } catch (_) { /* answers already sent */ }
-      try { await sendToCrm(d, photo); } catch (_) { /* booking still proceeds */ }
-      try { await emailIntake(form, photo); } catch (_) { /* booking still proceeds */ }
+      let crmOk = false;
+      for (let i = 0; i < 3 && !crmOk; i++) {
+        try { crmOk = await sendToCrm(d, photo); } catch (_) { crmOk = false; }
+        if (!crmOk && window.turnstile) {
+          try { window.turnstile.reset(); } catch (_) { /* retry with existing token */ }
+          await new Promise(function (resolve) { setTimeout(resolve, 900); });
+        }
+      }
+      if (!crmOk) {
+        toast("Couldn't reach Elite. Tap Send again — your answers are saved.");
+        btn.disabled = false;
+        btn.textContent = "Send my profile";
+        return;
+      }
+      try { await emailIntake(form, photo); } catch (_) { /* CRM already wrote */ }
       btn.textContent = "Sent.";
       window.location.href = "setter-done.html";
     });
